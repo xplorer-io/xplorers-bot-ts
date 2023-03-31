@@ -3,7 +3,7 @@ name: Deploy Xplorers Bot to Google Cloud
 on: push
 
 jobs:
-  test-gcloud:
+  deploy-xplorers-bot-to-gcp:
     runs-on: ubuntu-latest
     # ...
 
