@@ -1,0 +1,11 @@
+{
+  "main": "index.js",
+  "scripts": {
+    "start": "functions-framework --target=xplorersbot"
+  },
+  "dependencies": {
+    "@google-cloud/functions-framework": "^3.1.3",
+    "@google-cloud/logging": "^10.4.0",
+    "@slack/web-api": "^6.8.1"
+  }
+}
