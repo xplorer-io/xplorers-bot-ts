@@ -3,6 +3,7 @@ import { Log, Logging } from '@google-cloud/logging';
 import { SUCCESS_MESSAGE } from './helpers/constants';
 import { writeLog } from './helpers/logs';
 import { handleSlackMessageEvent } from './helpers/slack';
+import { SlackWebClient } from './helpers/types';
 const { WebClient } = require('@slack/web-api');
 const fs = require('fs');
 
@@ -12,7 +13,8 @@ const logging: Logging = new Logging();
 // Selects the log to write to
 const log: Log = logging.log(process.env.LOG_NAME || 'xplorers-bot-log');
 
-const slackWebClient: typeof WebClient = new WebClient(process.env.SLACK_OAUTH_TOKEN || fs.readFileSync('/etc/secrets/slack-oauth-token'))
+
+const slackWebClient: SlackWebClient = new WebClient(process.env.SLACK_OAUTH_TOKEN || fs.readFileSync('/etc/secrets/slack-oauth-token'))
 
 // Lambda handler
 export const xplorersbot: HttpFunction = (req, res) => {

@@ -1,6 +1,6 @@
-const { WebClient, ErrorCode } = require('@slack/web-api');
-import * as slackMessageBlocks from './files/welcomeMessageBlocks.json';
-import { SlackEvent } from './types';
+const { Reaction, ErrorCode } = require('@slack/web-api');
+import SLACK_MESSAGE_BLOCKS from './files/welcomeMessageBlocks.json';
+import { SlackEvent, SlackWebClient } from './types';
 const fs = require('fs');
 
 
@@ -22,15 +22,17 @@ function getEmojisToReactWith(text: string): Array<string> {
     return emojisToReactWith
 }
 
-async function getCurrentEmojisOnSlackPost(slackWebClient: typeof WebClient, channel: string, timestamp: string): Promise<string[]> {
+async function getCurrentEmojisOnSlackPost(slackWebClient: SlackWebClient, channel: string, timestamp: string): Promise<string[]> {
     try {
         const reactions = await slackWebClient.reactions.get({
             channel,
             timestamp
         });
-        if (reactions?.message?.reactions) {
+
+        const messageReactions = reactions?.message?.reactions;
+        if (messageReactions) {
             // return an array of reactions
-            return reactions.message.reactions.map((reaction: Record<string, string>) => reaction.name);
+            return messageReactions.map((reaction: typeof Reaction) => reaction.name);
         } else {
             console.log(`No reactions found for message with timestamp ${timestamp} in channel ${channel}.`);
             return [];
@@ -41,7 +43,7 @@ async function getCurrentEmojisOnSlackPost(slackWebClient: typeof WebClient, cha
     }
 }
 
-async function reactToSlackPost(slackWebClient: typeof WebClient, text: string, slackChannel: string, timestamp: string): Promise<void> {
+async function reactToSlackPost(slackWebClient: SlackWebClient, text: string, slackChannel: string, timestamp: string): Promise<void> {
     const emojisToReactWith: Array<string> = getEmojisToReactWith(text)
     if (emojisToReactWith.length > 0) {
         const currentEmojisOnSlackPost: Promise<string[]> = getCurrentEmojisOnSlackPost(slackWebClient, slackChannel, timestamp)
@@ -68,8 +70,8 @@ async function reactToSlackPost(slackWebClient: typeof WebClient, text: string, 
 }
 
 
-function handleSlackJoinEvent(slackWebClient: typeof WebClient, slackChannel: string, userId: string) {
-    const messages = slackMessageBlocks.welcomeMessageBlocks
+function handleSlackJoinEvent(slackWebClient: SlackWebClient, slackChannel: string, userId: string) {
+    const messages = SLACK_MESSAGE_BLOCKS.welcomeMessageBlocks
     const welcomeMessage = messages[Math.floor(Math.random() * messages.length)];
     // substitute user id in random welcome message with real user id
     const welcomeMessageText = welcomeMessage.blocks[0].text.text.replace('user_id', userId);
@@ -84,12 +86,11 @@ function handleSlackJoinEvent(slackWebClient: typeof WebClient, slackChannel: st
     })();
 }
 
-
-export function handleSlackMessageEvent(slackWebClient: typeof WebClient, slackEvent: SlackEvent) {
-    const slackChannel = slackEvent.channel;
-    const userId = slackEvent.user;
-    var text = slackEvent.text;
-    var timestamp = slackEvent.ts;
+export function handleSlackMessageEvent(slackWebClient: SlackWebClient, slackEvent: SlackEvent) {
+    const slackChannel: string = slackEvent.channel;
+    const userId: string = slackEvent.user;
+    let text: string = slackEvent.text;
+    let timestamp: string = slackEvent.ts;
 
     if ('subtype' in slackEvent) {
         switch (slackEvent.subtype) {

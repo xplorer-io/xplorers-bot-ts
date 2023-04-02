@@ -1,3 +1,5 @@
+import { WebClient } from "@slack/web-api";
+
 export type SlackEvent = {
     channel: string;
     user: string;
@@ -9,3 +11,5 @@ export type SlackEvent = {
         ts: string;
     };
 }
+
+export type SlackWebClient = WebClient;

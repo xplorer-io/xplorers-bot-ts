@@ -19,5 +19,6 @@
     "typescript": ["typescript"],
     "golang":     ["golang"],
     "appleinc":   ["apple", "ios", "iphone", "ipad", "mac", "macintosh", "mac os", "macintosh"],
-    "flag-np":    ["npr", "nepal", "nepali", "rupees", "mount everest"]
+    "flag-np":    ["npr", "nepal", "nepali", "rupees", "mount everest"],
+    "terraform":  ["terraform"]
 }
