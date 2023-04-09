@@ -47,7 +47,7 @@ plan: ## Run terraform pre-flight checks using terraform plan
 		-var "zone=$(GOOGLE_CLOUD_PROJECT_ZONE)" \
 		-var "xplorers_artifacts_bucket_name=$(XPLORERS_ARTIFACTS_BUCKET_NAME)"
 
-apply: package ## Run terraform pre-flight checks using terraform plan
+apply: init package ## Run terraform pre-flight checks using terraform plan
 	$(info [+] Deploying Xplorers infra resources, standby...)
 	@terraform -chdir=terraform apply -auto-approve \
 		-var "project_id=$(GOOGLE_CLOUD_PROJECT_ID)" \
