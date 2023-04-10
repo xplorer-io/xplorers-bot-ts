@@ -65,6 +65,12 @@ resource "google_cloudfunctions2_function" "xplorers_bot_function" {
       secret     = var.slack_oauth_token_secret_name
     }
   }
+
+  lifecycle {
+    ignore_changes = [
+      service_config[0].uri
+    ]
+  }
 }
 
 resource "google_storage_bucket_iam_member" "member" {
