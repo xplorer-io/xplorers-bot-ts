@@ -17,10 +17,6 @@ jobs:
     - name: Checkout repo
       uses: actions/checkout@v3
 
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v2
-
-    # Now you can run gcloud commands authenticated as the impersonated service account.
-    - id: run unit tests
+    - id: run-unit-tests
       name: Run unit tests
       run: make install && make test
