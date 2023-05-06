@@ -14,10 +14,16 @@ help:
 clean:
 	rm -rf dist/
 	rm -rf $(FUNCTION_ARTIFACT)
-	rm -rf src/index.js src/helpers/*.js
+	rm -rf src/index.js src/helpers/*.js index.js
 
 install: ## installs all the dependencies (node modules)
 	npm install
+
+test:
+	npm run test
+
+start-local-server:
+	npm run start-local-server
 
 compile: ## compile the typescript code
 	tsc
@@ -63,11 +69,4 @@ destroy: ## Delete all resources deployed via terraform
 		-var "zone=$(GOOGLE_CLOUD_PROJECT_ZONE)" \
 		-var "xplorers_artifacts_bucket_name=$(XPLORERS_ARTIFACTS_BUCKET_NAME)"
 
-replace:
-	terraform -chdir=terraform apply -replace=google_storage_bucket_object.xplorers_artifact \
-		-var "project_id=$(GOOGLE_CLOUD_PROJECT_ID)" \
-		-var "region=$(GOOGLE_CLOUD_PROJECT_REGION)" \
-		-var "zone=$(GOOGLE_CLOUD_PROJECT_ZONE)" \
-		-var "xplorers_artifacts_bucket_name=$(XPLORERS_ARTIFACTS_BUCKET_NAME)"
-
-.PHONY: init plan apply destroy
+.PHONY: init plan apply destroy create-slack-token-secret test start-local-server clean package compile install

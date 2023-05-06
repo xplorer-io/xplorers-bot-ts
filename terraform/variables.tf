@@ -63,6 +63,24 @@ variable "xplorers_bot_function_role_id" {
   default     = "xplorersBotFunctionRole"
 }
 
+variable "xplorers_bot_function_memory_in_mb" {
+  type        = number
+  description = "Memory in mb to allocate to the cloud function"
+  default     = 256
+}
+
+variable "xplorers_bot_function_timeout_in_seconds" {
+  type        = number
+  description = "Number of seconds after which the function times out"
+  default     = 60
+}
+
+variable "xplorers_bot_function_max_instances" {
+  type        = number
+  description = "Maximum number of function instances that can coexist at any given time"
+  default     = 5
+}
+
 variable "xplorers_bot_function_role_permissions" {
   type        = list(string)
   description = "Permissions for the custom role that is assigned to the service account used by the function"
@@ -70,10 +88,4 @@ variable "xplorers_bot_function_role_permissions" {
     "secretmanager.versions.access",
     "logging.logEntries.create",
   ]
-}
-
-variable "cloud_build_service_account_role_id" {
-  type        = string
-  description = "ID of the custom role that is assigned to the service account used by the cloud build service"
-  default     = "cloudBuildServiceAccountRole"
 }

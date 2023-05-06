@@ -2,10 +2,6 @@ locals {
   timestamp = formatdate("YYMMDD", timestamp())
 }
 
-data "google_project" "current" {
-  project_id = var.project_id
-}
-
 # Generates an archive of the source code compressed as a .zip file.
 data "archive_file" "xplorers_artifact" {
   type        = "zip"
@@ -26,8 +22,8 @@ resource "google_storage_bucket_object" "xplorers_artifact" {
 
 resource "google_project_iam_custom_role" "xplorers_bot_function_storage_role" {
   role_id     = var.xplorers_bot_function_storage_role_id
-  title       = "Role for Xplorers bot function"
-  description = "Role for Xplorers bot function"
+  title       = "Custom Storage Role for Xplorers bot function"
+  description = "Custom Storage Role for Xplorers bot function"
   permissions = [
     "storage.objects.get"
   ]
@@ -38,51 +34,44 @@ resource "google_service_account" "xplorers_bot_function_service_account" {
   display_name = "Service Account used by Xplorers Bot function"
 }
 
-resource "google_cloudfunctions2_function" "xplorers_bot_function" {
-  name        = var.function_name
-  location    = var.region
-  description = "Xplorers Bot function that receives events from Slack and processes them accordingly"
+resource "google_cloudfunctions_function" "xplorers_bot_function" {
+  name                         = var.function_name
+  description                  = "Xplorers Bot function that receives events from Slack and processes them accordingly"
+  runtime                      = var.function_runtime
+  entry_point                  = var.function_entry_point
+  available_memory_mb          = var.xplorers_bot_function_memory_in_mb
+  source_archive_bucket        = var.xplorers_artifacts_bucket_name
+  source_archive_object        = google_storage_bucket_object.xplorers_artifact.name
+  timeout                      = var.xplorers_bot_function_timeout_in_seconds
+  service_account_email        = google_service_account.xplorers_bot_function_service_account.email
+  trigger_http                 = true
+  https_trigger_security_level = "SECURE_ALWAYS"
+  max_instances                = var.xplorers_bot_function_max_instances
 
-  build_config {
-    runtime     = var.function_runtime
-    entry_point = var.function_entry_point
-    source {
-      storage_source {
-        bucket = var.xplorers_artifacts_bucket_name
-        object = google_storage_bucket_object.xplorers_artifact.name
-      }
-    }
-  }
-
-  service_config {
-    max_instance_count    = 5
-    timeout_seconds       = 60
-    service_account_email = google_service_account.xplorers_bot_function_service_account.email
-
-    secret_volumes {
-      mount_path = var.slack_oauth_token_mount_path
-      project_id = var.project_id
-      secret     = var.slack_oauth_token_secret_name
-    }
+  secret_volumes {
+    mount_path = var.slack_oauth_token_mount_path
+    project_id = var.project_id
+    secret     = var.slack_oauth_token_secret_name
   }
 
   lifecycle {
     ignore_changes = [
-      service_config[0].uri
+      https_trigger_url
     ]
   }
 }
 
-resource "google_storage_bucket_iam_member" "member" {
+resource "google_storage_bucket_iam_member" "xplorers_bot_function_storage_role_binding" {
   bucket = var.xplorers_artifacts_bucket_name
   role   = google_project_iam_custom_role.xplorers_bot_function_storage_role.name
   member = "serviceAccount:${google_service_account.xplorers_bot_function_service_account.email}"
 }
 
-resource "google_cloud_run_service_iam_binding" "xplorers_bot_invoker_binding" {
-  location = google_cloudfunctions2_function.xplorers_bot_function.location
-  service  = google_cloudfunctions2_function.xplorers_bot_function.name
-  role     = "roles/run.invoker"
+resource "google_cloudfunctions_function_iam_binding" "xplorers_bot_invoker_binding" {
+  project        = var.project_id
+  region         = var.region
+  cloud_function = google_cloudfunctions_function.xplorers_bot_function.name
+  role           = "roles/cloudfunctions.invoker"
   members = [
     "allUsers"
   ]
@@ -95,26 +84,8 @@ resource "google_project_iam_custom_role" "xplorers_bot_function_role" {
   permissions = var.xplorers_bot_function_role_permissions
 }
 
-resource "google_project_iam_member" "xplorers_bot_function_secret_accessor" {
+resource "google_project_iam_member" "xplorers_bot_function_custom_role_binding" {
   project = var.project_id
   role    = google_project_iam_custom_role.xplorers_bot_function_role.name
   member  = "serviceAccount:${google_service_account.xplorers_bot_function_service_account.email}"
-}
-
-resource "google_project_iam_custom_role" "cloud_build_service_account_role" {
-  role_id     = var.cloud_build_service_account_role_id
-  title       = "Allow Cloud Build to interact with other GCP services"
-  description = "Allow Cloud Build to interact with other GCP services"
-  permissions = [
-    "artifactregistry.repositories.deleteArtifacts" # Cloud build builds a new image and pushes it to the registry everytime we change the source code and deletes the old one
-  ]
-}
-
-resource "google_project_iam_binding" "cloud_build_service_account_permissions" {
-  project = var.project_id
-  role    = google_project_iam_custom_role.cloud_build_service_account_role.name
-
-  members = [
-    "serviceAccount:${data.google_project.current.number}@cloudbuild.gserviceaccount.com",
-  ]
 }

@@ -1,17 +1,11 @@
-import { Entry, Log } from '@google-cloud/logging';
+import { Entry, Log } from "@google-cloud/logging";
+import { LOG_METADATA } from "./types";
 
-const LOG_METADATA = {
-    resource: {
-        type: 'cloud_function',
-        labels: {
-            custom_log_entry: 'true',
-            function_name: 'xplorers-bot',
-            region: 'us-central1'
-        }
-    }
-};
-
-export async function writeLog(log: Log, message: Record<string, unknown>) {
-    const entry: Entry = log.entry(LOG_METADATA, message);
+export async function writeLog(
+    log: Log,
+    message: Record<string, unknown>,
+    metadata: LOG_METADATA
+) {
+    const entry: Entry = log.entry(metadata, message);
     await log.write(entry);
 }

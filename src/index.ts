@@ -10,20 +10,31 @@ const fs = require('fs');
 // Creates a client
 const logging: Logging = new Logging();
 
-// Selects the log to write to
+// Logging parameters
 const log: Log = logging.log(process.env.LOG_NAME || 'xplorers-bot-log');
+const LOG_METADATA = {
+    resource: {
+        type: 'cloud_function',
+        labels: {
+            custom_log_entry: 'true',
+            function_name: 'xplorers-bot',
+            region: 'us-central1'
+        }
+    },
+    severity: 'INFO'
+};
 
 
 const slackWebClient: SlackWebClient = new WebClient(process.env.SLACK_OAUTH_TOKEN || fs.readFileSync('/etc/secrets/slack-oauth-token'))
 
-// Lambda handler
-export const xplorersbot: HttpFunction = (req, res) => {
+// app entry point
+export const xplorersbot: HttpFunction = async (req, res) => {
     const message = {
         name: 'Slack Event',
         req: req.body
     };
 
-    writeLog(log, message);
+    writeLog(log, message, LOG_METADATA);
 
     switch (req.body.type) {
         case 'url_verification':
@@ -32,9 +43,10 @@ export const xplorersbot: HttpFunction = (req, res) => {
         case 'event_callback':
             switch (req.body.event.type) {
                 case 'message':
-                    handleSlackMessageEvent(slackWebClient, req.body.event)
+                    await handleSlackMessageEvent(slackWebClient, req.body.event)
             }
     }
 
     res.status(200).send(SUCCESS_MESSAGE);
+    console.log('Successfully processed slack message')
 };

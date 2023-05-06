@@ -1,4 +1,4 @@
-output "xplorers_bot_function_uri" {
-  value     = google_cloudfunctions2_function.xplorers_bot_function.service_config[0].uri
+output "xplorers_bot_function_https_url" {
+  value     = google_cloudfunctions_function.xplorers_bot_function.https_trigger_url
   sensitive = true
 }

@@ -1,0 +1,26 @@
+name: Run CI Tests
+
+on: push
+
+jobs:
+  run-ci-tests:
+    runs-on: ubuntu-latest
+    # ...
+
+    # Add "id-token" with the intended permissions.
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+    # actions/checkout MUST come before auth
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+
+    # Now you can run gcloud commands authenticated as the impersonated service account.
+    - id: run unit tests
+      name: Run unit tests
+      run: make install && make test

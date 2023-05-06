@@ -1,109 +1,221 @@
-const { Reaction, ErrorCode } = require('@slack/web-api');
-import SLACK_MESSAGE_BLOCKS from './files/welcomeMessageBlocks.json';
-import { SlackEvent, SlackWebClient } from './types';
-const fs = require('fs');
+const { Reaction, ErrorCode } = require("@slack/web-api");
+import SLACK_MESSAGE_BLOCKS from "./files/welcomeMessageBlocks.json";
+import { SlackWebClient } from "./types";
+import {
+    SlackEvent,
+    SlackChannelJoinEvent,
+    SlackMessageEvent,
+    SlackMessageChangedEvent,
+} from "./interfaces";
+const fs = require("fs");
 
-
-function getEmojisToReactWith(text: string): Array<string> {
+export function getEmojisToReactWith(text: string): Array<string> {
     const emojisToReactWith: Array<string> = [];
 
-    let rawdata = fs.readFileSync('./helpers/files/emojis.json');
-    let emojis: Record<string, Array<string>> = JSON.parse(rawdata);
+    // Read list of emojis from file
+    const rawdata = fs.readFileSync(
+        process.env.EMOJIS_FILE_PATH || "./helpers/files/emojis.json"
+    );
+    const emojis: Record<string, Array<string>> = JSON.parse(rawdata);
 
-    for (const [emoji, keywords] of Object.entries(emojis)) {
-        for (const keyword of keywords) {
-            if (text.includes(keyword)) {
-                emojisToReactWith.push(emoji)
-            }
+    // flattens the array of keywords
+    const keywords = Object.values(emojis).flat();
+
+    // search for each keyword in the text
+    for (const keyword of keywords) {
+        if (text.includes(keyword)) {
+            emojisToReactWith.push(
+                Object.keys(emojis).find((key) =>
+                    emojis[key].includes(keyword)
+                )!
+            );
         }
     }
 
-    console.log(`Emojis to react with: ${emojisToReactWith}`)
-    return emojisToReactWith
+    return Array.from(new Set(emojisToReactWith));
 }
 
-async function getCurrentEmojisOnSlackPost(slackWebClient: SlackWebClient, channel: string, timestamp: string): Promise<string[]> {
+export async function getCurrentEmojisOnSlackPost(
+    slackWebClient: SlackWebClient,
+    channel: string,
+    timestamp: string
+): Promise<string[]> {
     try {
         const reactions = await slackWebClient.reactions.get({
             channel,
-            timestamp
+            timestamp,
         });
 
         const messageReactions = reactions?.message?.reactions;
-        if (messageReactions) {
-            // return an array of reactions
-            return messageReactions.map((reaction: typeof Reaction) => reaction.name);
-        } else {
-            console.log(`No reactions found for message with timestamp ${timestamp} in channel ${channel}.`);
+        if (!messageReactions) {
+            console.log(
+                `No reactions found for message with timestamp ${timestamp} in channel ${channel}.`
+            );
             return [];
         }
+        return messageReactions.map(
+            (reaction: typeof Reaction) => reaction.name
+        );
     } catch (error) {
-        console.error(`Error ${error} while getting reactions for message with timestamp ${timestamp} in channel ${channel}.`);
+        console.error(
+            `Error ${error} while getting reactions for message with timestamp ${timestamp} in channel ${channel}.`
+        );
         return [];
     }
 }
 
-async function reactToSlackPost(slackWebClient: SlackWebClient, text: string, slackChannel: string, timestamp: string): Promise<void> {
-    const emojisToReactWith: Array<string> = getEmojisToReactWith(text)
-    if (emojisToReactWith.length > 0) {
-        const currentEmojisOnSlackPost: Promise<string[]> = getCurrentEmojisOnSlackPost(slackWebClient, slackChannel, timestamp)
+export async function reactToSlackPost(
+    slackWebClient: SlackWebClient,
+    text: string,
+    slackChannel: string,
+    timestamp: string
+): Promise<void> {
+    const emojisToReactWith: Array<string> = getEmojisToReactWith(text);
 
-        for (const emoji of emojisToReactWith) {
-            if (!(await currentEmojisOnSlackPost).includes(emoji)) {
-                try {
-                    console.log(`Adding emoji ${emoji} to slack post with timestamp ${timestamp} in channel ${slackChannel}.`)
-                    await slackWebClient.reactions.add({
-                        channel: slackChannel,
-                        timestamp: timestamp,
-                        name: emoji
-                    })
-                } catch (error: Error | any) {
-                    if (error.code === ErrorCode.PlatformError) {
-                        console.log(`Error message: '${error.message}' and error code: '${error.code}'`);
-                    }
-                }
-            } else {
-                console.log(`Emoji ${emoji} already exists on slack post with timestamp ${timestamp} in channel ${slackChannel}.`)
-            }
+    if (!emojisToReactWith.length) return;
+
+    const currentEmojisOnSlackPost: Array<string> =
+        await getCurrentEmojisOnSlackPost(
+            slackWebClient,
+            slackChannel,
+            timestamp
+        );
+
+    console.log(
+        `Current emojis on slack post with timestamp ${timestamp} in channel ${slackChannel}: ${currentEmojisOnSlackPost}`
+    );
+
+    const newEmojisToReactWith = emojisToReactWith.filter(
+        (emoji) => !currentEmojisOnSlackPost.includes(emoji)
+    );
+
+    console.log(`New emojis to react with: ${newEmojisToReactWith}`);
+
+    if (newEmojisToReactWith.length) {
+        for (const emoji of newEmojisToReactWith) {
+            await addReactionToSlackPost(
+                emoji,
+                timestamp,
+                slackChannel,
+                slackWebClient
+            );
         }
     }
 }
 
-
-function handleSlackJoinEvent(slackWebClient: SlackWebClient, slackChannel: string, userId: string) {
-    const messages = SLACK_MESSAGE_BLOCKS.welcomeMessageBlocks
-    const welcomeMessage = messages[Math.floor(Math.random() * messages.length)];
-    // substitute user id in random welcome message with real user id
-    const welcomeMessageText = welcomeMessage.blocks[0].text.text.replace('user_id', userId);
-
-    (async () => {
-        const result = await slackWebClient.chat.postMessage({
-            text: welcomeMessageText,
+export async function addReactionToSlackPost(
+    emoji: string,
+    timestamp: string,
+    slackChannel: string,
+    slackWebClient: SlackWebClient
+) {
+    try {
+        console.log(
+            `Adding emoji ${emoji} to slack post with timestamp ${timestamp} in channel ${slackChannel}.`
+        );
+        await slackWebClient.reactions.add({
             channel: slackChannel,
+            timestamp: timestamp,
+            name: emoji,
         });
-
-        console.log(`Successfully sent message ${result.ts} to slack channel ${slackChannel}`);
-    })();
-}
-
-export function handleSlackMessageEvent(slackWebClient: SlackWebClient, slackEvent: SlackEvent) {
-    const slackChannel: string = slackEvent.channel;
-    const userId: string = slackEvent.user;
-    let text: string = slackEvent.text;
-    let timestamp: string = slackEvent.ts;
-
-    if ('subtype' in slackEvent) {
-        switch (slackEvent.subtype) {
-            case 'message_changed':
-                text = slackEvent.message.text
-                timestamp = slackEvent.message.ts
-                break;
-            case 'channel_join':
-                handleSlackJoinEvent(slackWebClient, slackChannel, userId);
-                break;
-            default:
-                break;
+    } catch (error: Error | any) {
+        if (error.code === ErrorCode.PlatformError) {
+            console.log(
+                `Error while adding reaction to slack post: '${error.message}' and error code: '${error.code}'`
+            );
         }
     }
-    reactToSlackPost(slackWebClient, text, slackChannel, timestamp)
+}
+
+async function postMessageToSlack(
+    slackWebClient: SlackWebClient,
+    text: string,
+    slackChannel: string
+) {
+    const postMessageResponse = await slackWebClient.chat.postMessage({
+        text: text,
+        channel: slackChannel,
+    });
+    console.log(
+        `Successfully sent message ${postMessageResponse.ts} to slack channel ${slackChannel}`
+    );
+}
+
+async function handleSlackJoinEvent(
+    slackWebClient: SlackWebClient,
+    slackChannel: string,
+    userId: string
+): Promise<void> {
+    const messages = SLACK_MESSAGE_BLOCKS.welcomeMessageBlocks;
+    const welcomeMessage =
+        messages[Math.floor(Math.random() * messages.length)];
+    // substitute user id in random welcome message with real user id
+    const welcomeMessageText = welcomeMessage.blocks[0].text.text.replace(
+        "user_id",
+        userId
+    );
+
+    await postMessageToSlack(slackWebClient, welcomeMessageText, slackChannel);
+}
+
+interface SlackEventStrategy {
+    handle(slackWebClient: SlackWebClient, slackEvent: SlackEvent): void;
+}
+
+export class ChannelJoinStrategy implements SlackEventStrategy {
+    async handle(
+        slackWebClient: SlackWebClient,
+        slackEvent: SlackChannelJoinEvent
+    ) {
+        const userId = slackEvent.user;
+        const slackChannel = slackEvent.channel;
+        handleSlackJoinEvent(slackWebClient, slackChannel, userId);
+    }
+}
+
+export class MessageStrategy implements SlackEventStrategy {
+    async handle(
+        slackWebClient: SlackWebClient,
+        slackEvent: SlackMessageEvent
+    ): Promise<void> {
+        const { text, channel, ts } = slackEvent;
+        await reactToSlackPost(slackWebClient, text, channel, ts);
+    }
+}
+
+export class MessageChangedStrategy implements SlackEventStrategy {
+    async handle(
+        slackWebClient: SlackWebClient,
+        slackEvent: SlackMessageChangedEvent
+    ): Promise<void> {
+        const { channel } = slackEvent;
+        const { text, ts } = slackEvent.message;
+        await reactToSlackPost(slackWebClient, text, channel, ts);
+    }
+}
+
+export const strategies: Record<string, SlackEventStrategy> = {
+    channel_join: new ChannelJoinStrategy(),
+    message: new MessageStrategy(),
+    message_changed: new MessageChangedStrategy(),
+};
+
+export async function handleSlackMessageEvent(
+    slackWebClient: SlackWebClient,
+    slackEvent: SlackEvent
+) {
+    let strategyName: string;
+
+    if (!slackEvent.subtype) {
+        strategyName = slackEvent.type;
+    } else {
+        strategyName = slackEvent.subtype;
+    }
+
+    let strategy = strategies[strategyName];
+    if (strategy) {
+        await strategy.handle(slackWebClient, slackEvent);
+    } else {
+        console.log(`No strategy found for event type ${slackEvent.type}`);
+    }
 }
