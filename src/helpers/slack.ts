@@ -1,4 +1,5 @@
 const { Reaction, ErrorCode } = require("@slack/web-api");
+import * as crypto from "crypto";
 import SLACK_MESSAGE_BLOCKS from "./files/welcomeMessageBlocks.json";
 import { SlackWebClient } from "./types";
 import {
@@ -118,7 +119,7 @@ export async function addReactionToSlackPost(
             timestamp: timestamp,
             name: emoji,
         });
-    } catch (error: Error | any) {
+    } catch (error: any) {
         if (error.code === ErrorCode.PlatformError) {
             console.log(
                 `Error while adding reaction to slack post: '${error.message}' and error code: '${error.code}'`
@@ -147,8 +148,11 @@ async function handleSlackJoinEvent(
     userId: string
 ): Promise<void> {
     const messages = SLACK_MESSAGE_BLOCKS.welcomeMessageBlocks;
-    const welcomeMessage =
-        messages[Math.floor(Math.random() * messages.length)];
+
+    const randomBytes = crypto.randomBytes(4); // Generate 4 random bytes
+    const index = randomBytes.readUInt32BE() % messages.length; // Convert bytes to an integer index within the range of the messages array
+    const welcomeMessage = messages[index];
+
     // substitute user id in random welcome message with real user id
     const welcomeMessageText = welcomeMessage.blocks[0].text.text.replace(
         "user_id",
@@ -169,7 +173,7 @@ export class ChannelJoinStrategy implements SlackEventStrategy {
     ) {
         const userId = slackEvent.user;
         const slackChannel = slackEvent.channel;
-        handleSlackJoinEvent(slackWebClient, slackChannel, userId);
+        await handleSlackJoinEvent(slackWebClient, slackChannel, userId);
     }
 }
 
@@ -214,7 +218,7 @@ export async function handleSlackMessageEvent(
 
     let strategy = strategies[strategyName];
     if (strategy) {
-        await strategy.handle(slackWebClient, slackEvent);
+        strategy.handle(slackWebClient, slackEvent);
     } else {
         console.log(`No strategy found for event type ${slackEvent.type}`);
     }

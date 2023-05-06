@@ -1,4 +1,3 @@
-const { ErrorCode } = require("@slack/web-api");
 import { handleSlackMessageEvent } from "../../src/helpers/slack";
 import {
     MessageChangedStrategy,
@@ -86,10 +85,6 @@ describe("handleSlackMessageEvent", () => {
         expect(messageStrategy).toHaveBeenCalledTimes(1);
     });
 });
-
-interface CoalfaceError {
-    code: typeof ErrorCode;
-}
 
 describe("addReactionToSlackPost", () => {
     const emoji = "smile";
