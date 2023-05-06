@@ -5,15 +5,12 @@ on: push
 jobs:
   run-ci-tests:
     runs-on: ubuntu-latest
-    # ...
 
-    # Add "id-token" with the intended permissions.
     permissions:
       contents: read
       id-token: write
 
     steps:
-    # actions/checkout MUST come before auth
     - name: Checkout repo
       uses: actions/checkout@v3
 
