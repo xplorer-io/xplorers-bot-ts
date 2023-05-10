@@ -1,5 +1,5 @@
 const { Reaction, ErrorCode } = require("@slack/web-api");
-const crypto = require("crypto");
+import * as crypto from "crypto"
 import SLACK_MESSAGE_BLOCKS from "./files/welcomeMessageBlocks.json";
 import { SlackWebClient } from "./types";
 import {
