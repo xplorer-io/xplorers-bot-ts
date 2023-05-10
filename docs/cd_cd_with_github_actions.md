@@ -1,7 +1,6 @@
 ## CI/CD with Github Actions and Google Cloud Workload Identity Federation
 
-<!-- TODO -->
-<!-- Xplorersbot uses Github Actions for its CI/CD pipeline. With every push from every branch, unit tests will run and the workflow is defined in `.github/workflows/run-tests.yml`. -->
+Xplorersbot uses Github Actions for its CI/CD pipeline. With every push from every branch, unit tests will run and the workflow is defined in `.github/workflows/run-ci-tests.yml`.
 
 Historically, applications running outside the Google Cloud had to rely on service account keys to access resources within the Google Cloud. However, as service account keys are long-lived credentials with permissions to interact and change the state of resources in the cloud, they pose a security threat if not managed appropriately.
 

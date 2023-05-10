@@ -1,5 +1,5 @@
 const { Reaction, ErrorCode } = require("@slack/web-api");
-import * as crypto from "crypto";
+const crypto = require("crypto");
 import SLACK_MESSAGE_BLOCKS from "./files/welcomeMessageBlocks.json";
 import { SlackWebClient } from "./types";
 import {
@@ -155,7 +155,7 @@ async function handleSlackJoinEvent(
 
     // substitute user id in random welcome message with real user id
     const welcomeMessageText = welcomeMessage.blocks[0].text.text.replace(
-        "user_id",
+        /user_id/g,
         userId
     );
 
