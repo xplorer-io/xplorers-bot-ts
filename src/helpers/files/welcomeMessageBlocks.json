@@ -6,7 +6,7 @@
                     "type": "section",
                     "text": {
                         "type": "mrkdwn",
-                        "text": "Woot Woot! We have a new *Xplorer* joining us today, welcome <@user_id> :wave: \n\n Very excited to have you join the family :charmander:"
+                        "text": "Woot Woot! We have a new *Xplorer* joining us today, welcome <@userId> :wave: \n\n Very excited to have you join the family :charmander:"
                     }
                 }
             ]
@@ -17,7 +17,7 @@
                     "type": "section",
                     "text": {
                         "type": "mrkdwn",
-                        "text": "Another day, another *Xplorer!* Sharing your knowledge is the most beautiful thing you guys do! \n\n Lets welcome <@user_id> to our family and lets get learning! :tada:"
+                        "text": "Another day, another *Xplorer!* Sharing your knowledge is the most beautiful thing you guys do! \n\n Lets welcome <@userId> to our family and lets get learning! :tada:"
                     }
                 }
             ]
@@ -28,7 +28,7 @@
                     "type": "section",
                     "text": {
                         "type": "mrkdwn",
-                        "text": "Hey <@user_id>, welcome to the world of *Xplorers* :launch: Very excited to have you join us :smiley: \n\n We are called *Xplorers* for a reason, `We learn, share and grow together!`. \n\n Please welcome <@user_id> to the family everyone :wave: "
+                        "text": "Hey <@userId>, welcome to the world of *Xplorers* :launch: Very excited to have you join us :smiley: \n\n We are called *Xplorers* for a reason, `We learn, share and grow together!`. \n\n Please welcome <@userId> to the family everyone :wave: "
                     }
                 }
             ]
