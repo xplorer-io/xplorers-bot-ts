@@ -1,5 +1,4 @@
 const { Reaction, ErrorCode } = require("@slack/web-api");
-import * as crypto from "crypto";
 import SLACK_MESSAGE_BLOCKS from "./files/welcomeMessageBlocks.json";
 import { SlackWebClient } from "./types";
 import {
@@ -151,16 +150,13 @@ async function handleSlackJoinEvent(
     userId: string
 ): Promise<void> {
     const messages = SLACK_MESSAGE_BLOCKS.welcomeMessageBlocks;
-
-    const randomBytes = crypto.randomBytes(4); // Generate 4 random bytes
-    const index = randomBytes.readUInt32BE() % messages.length; // Convert bytes to an integer index within the range of the messages array
-    const welcomeMessage = messages[index];
+    const welcomeMessage =
+        messages[Math.floor(Math.random() * messages.length)];
 
     // substitute user id in random welcome message with real user id
-    const welcomeMessageText = welcomeMessage.blocks[0].text.text.replace(
-        "user_id",
-        userId
-    );
+    const welcomeMessageText = welcomeMessage.blocks[0].text.text
+        .split("@userId")
+        .join("@" + userId);
 
     await postMessageToSlack(slackWebClient, welcomeMessageText, slackChannel);
 }
@@ -221,7 +217,7 @@ export async function handleSlackMessageEvent(
 
     let strategy = strategies[strategyName];
     if (strategy) {
-        strategy.handle(slackWebClient, slackEvent);
+        await strategy.handle(slackWebClient, slackEvent);
     } else {
         console.log(`No strategy found for event type ${slackEvent.type}`);
     }

@@ -66,7 +66,7 @@ variable "xplorers_bot_function_role_id" {
 variable "xplorers_bot_function_memory_in_mb" {
   type        = number
   description = "Memory in mb to allocate to the cloud function"
-  default     = 256
+  default     = 128
 }
 
 variable "xplorers_bot_function_timeout_in_seconds" {
