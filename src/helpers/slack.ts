@@ -13,6 +13,9 @@ const fs = require("fs");
 export function getEmojisToReactWith(text: string): Array<string> {
     const emojisToReactWith: Array<string> = [];
 
+    // lowercase the text
+    text = text.toLowerCase();
+
     // Read list of emojis from file
     const rawdata = fs.readFileSync(
         process.env.EMOJIS_FILE_PATH || "./helpers/files/emojis.json"
