@@ -1,4 +1,5 @@
 const { Reaction, ErrorCode } = require("@slack/web-api");
+import { EMOJIS_FILE_PATH } from "./constants";
 import SLACK_MESSAGE_BLOCKS from "./files/welcomeMessageBlocks.json";
 import { SlackWebClient } from "./types";
 import {
@@ -10,32 +11,59 @@ import {
 const fs = require("fs");
 
 export function getEmojisToReactWith(text: string): Array<string> {
-    const emojisToReactWith: Array<string> = [];
-
-    // lowercase the text
-    text = text.toLowerCase();
+    const lowerCaseText = text.toLowerCase();
 
     // Read list of emojis from file
-    const rawdata = fs.readFileSync(
-        process.env.EMOJIS_FILE_PATH || "./helpers/files/emojis.json"
-    );
-    const emojis: Record<string, Array<string>> = JSON.parse(rawdata);
+    const emojis: Record<string, Array<string>> = readEmojisFromFile();
 
-    // flattens the array of keywords
     const keywords = Object.values(emojis).flat();
 
     // search for each keyword in the text
+    const emojisToReactWith = findMatchingEmojiKeywords(
+        keywords,
+        lowerCaseText,
+        emojis
+    );
+
+    return Array.from(new Set(emojisToReactWith));
+}
+
+function readEmojisFromFile(): Record<string, Array<string>> {
+    var emojisFilePath: string;
+    if (process.env.EMOJIS_FILE_PATH) {
+        // check if the file path is valid
+        if (!fs.existsSync(process.env.EMOJIS_FILE_PATH)) {
+            console.error(
+                `Emojis file path ${process.env.EMOJIS_FILE_PATH} is invalid.`
+            );
+            return {};
+        } else {
+            emojisFilePath = process.env.EMOJIS_FILE_PATH;
+        }
+    } else {
+        emojisFilePath = EMOJIS_FILE_PATH;
+    }
+    const rawdata = fs.readFileSync(emojisFilePath);
+    return JSON.parse(rawdata);
+}
+
+function findMatchingEmojiKeywords(
+    keywords: string[],
+    lowerCaseText: string,
+    emojis: Record<string, string[]>
+): Array<string> {
+    const matchingEmojiKeywords: Array<string> = [];
+
     for (const keyword of keywords) {
-        if (text.includes(keyword)) {
-            emojisToReactWith.push(
+        if (lowerCaseText.includes(keyword)) {
+            matchingEmojiKeywords.push(
                 Object.keys(emojis).find((key) =>
                     emojis[key].includes(keyword)
                 )!
             );
         }
     }
-
-    return Array.from(new Set(emojisToReactWith));
+    return matchingEmojiKeywords;
 }
 
 export async function getCurrentEmojisOnSlackPost(
