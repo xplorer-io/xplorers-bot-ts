@@ -1,5 +1,5 @@
 const { Reaction, ErrorCode } = require("@slack/web-api");
-import { EMOJIS_FILE_PATH } from "./constants";
+import { DEFAULT_EMOJIS_FILE_PATH } from "./constants";
 import SLACK_MESSAGE_BLOCKS from "./files/welcomeMessageBlocks.json";
 import { SlackWebClient } from "./types";
 import {
@@ -8,7 +8,7 @@ import {
     SlackMessageEvent,
     SlackMessageChangedEvent,
 } from "./interfaces";
-const fs = require("fs");
+import fs from "fs";
 
 export function getEmojisToReactWith(text: string): Array<string> {
     const lowerCaseText = text.toLowerCase();
@@ -28,23 +28,41 @@ export function getEmojisToReactWith(text: string): Array<string> {
     return Array.from(new Set(emojisToReactWith));
 }
 
-function readEmojisFromFile(): Record<string, Array<string>> {
-    var emojisFilePath: string;
+function getEmojisFilePath(): string {
+    var emojisFilePath: string = DEFAULT_EMOJIS_FILE_PATH;
+
     if (process.env.EMOJIS_FILE_PATH) {
         // check if the file path is valid
         if (!fs.existsSync(process.env.EMOJIS_FILE_PATH)) {
-            console.error(
-                `Emojis file path ${process.env.EMOJIS_FILE_PATH} is invalid.`
-            );
-            return {};
+            return "";
         } else {
             emojisFilePath = process.env.EMOJIS_FILE_PATH;
         }
-    } else {
-        emojisFilePath = EMOJIS_FILE_PATH;
     }
-    const rawdata = fs.readFileSync(emojisFilePath);
-    return JSON.parse(rawdata);
+
+    return emojisFilePath;
+}
+
+function readEmojisFromFile(): Record<string, Array<string>> {
+    const emojisFilePath = getEmojisFilePath();
+
+    if (!emojisFilePath) {
+        console.error(
+            `Emojis file path ${process.env.EMOJIS_FILE_PATH} is invalid.`
+        );
+        return {};
+    }
+
+    try {
+        const data = fs.readFileSync(emojisFilePath, {
+            encoding: "utf8",
+            flag: "r",
+        });
+        return JSON.parse(data);
+    } catch (err) {
+        console.error(`Error reading emojis file: ${err}`);
+        return {};
+    }
 }
 
 function findMatchingEmojiKeywords(
@@ -180,7 +198,6 @@ async function handleSlackJoinEvent(
     const messages = SLACK_MESSAGE_BLOCKS.welcomeMessageBlocks;
     const welcomeMessage =
         messages[Math.floor(Math.random() * messages.length)];
-
     // substitute user id in random welcome message with real user id
     const welcomeMessageText = welcomeMessage.blocks[0].text.text
         .split("@userId")
