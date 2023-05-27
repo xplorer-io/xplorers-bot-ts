@@ -44,7 +44,7 @@ function validateIsEmojisDict(dict: any): boolean {
 }
 
 function getEmojisFilePath(): string {
-    var emojisFilePath: string = DEFAULT_EMOJIS_FILE_PATH;
+    let emojisFilePath: string = DEFAULT_EMOJIS_FILE_PATH;
 
     if (process.env.EMOJIS_FILE_PATH) {
         // check if the file path is valid
