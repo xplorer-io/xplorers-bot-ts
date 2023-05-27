@@ -14,6 +14,10 @@ jobs:
     - name: Checkout repo
       uses: actions/checkout@v3
 
+    - name: Install taskfile
+      run: |
+        sudo snap install task --classic
+
     - id: run-unit-tests
       name: Run unit tests
-      run: make install && make test
+      run: task install && task test

@@ -14,15 +14,15 @@ Terraform is an infrastructure as code tool that enables developers to automate 
 
 To run the following commands locally, ensure you have authenticated to Google Cloud, see [Login to Google Cloud via gcloud cli + setup application default credentials via Application Default Credentials (ADC)](#authenticate-to-google-cloud) for details.
 
-1. Run `make init` to initialize terraform's backend and providers.
+1. Run `task terraform-init` to initialize terraform's backend and providers.
     1. Google provider is setup.
     2. Google cloud storage is used to store terraform's configuration. State locking is also supported.
 
-2. Run `make plan` to generate a plan for the changes to be applied to Google Cloud.
+2. Run `task terraform-plan` to generate a plan for the changes to be applied to Google Cloud.
 
-3. Once you have reviewed the changes to be applied, run `make apply` to apply changes to Google Cloud.
+3. Once you have reviewed the changes to be applied, run `task terraform-apply` to apply changes to Google Cloud.
 
-To delete all the resources created by Terraform, run `make destroy`.
+To delete all the resources created by Terraform, run `task terraform-destroy`.
 
 ## Architecture Diagram
 
@@ -30,7 +30,7 @@ To delete all the resources created by Terraform, run `make destroy`.
 
 ## Features
 
-There are a million ways to use a bot make Slack fun. Current features of XplorersBot are,
+There are a million ways to drive engagement in Slack. Current features of XplorersBot are,
 
 * ***Welcome a new slack user*** - When a user joins a slack channel, XplorersBot crafts a welcome message and posts in the channel to welcome the user.
 * ***React to slack posts with emojis*** - With every slack post, XplorersBot checks the text for any keyword matches and reacts to the post with appropriate emoji's. For example, for text `This is a kubernetes environment`, XplorersBot will react to the post with `kubernetes` emoji.

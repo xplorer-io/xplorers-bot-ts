@@ -2,8 +2,8 @@
   "main": "index.js",
   "scripts": {
     "start": "functions-framework --target=xplorersbot",
-    "test": "make clean && jest --verbose --coverage tests",
-    "start-local-server": "make clean && tsc && cd src && npx functions-framework --target=xplorersbot --signature-type=http"
+    "test": "task clean && jest --verbose --coverage tests",
+    "start-local-server": "task clean && tsc && cd src && npx functions-framework --target=xplorersbot --signature-type=http"
   },
   "dependencies": {
     "@google-cloud/logging": "^10.4.0",

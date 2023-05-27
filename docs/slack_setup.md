@@ -15,4 +15,4 @@ Bot events to subscribe to,
 * message.channels - A message was posted to a channel
 * team_join - A new member has joined
 
-Store the bot oauth token in Google Cloud Secrets. Set environment variable `SLACK_OAUTH_TOKEN` and run the make command `make create-slack-token-secret` to create a secret with the value of the slack token. The token is then mounted to Google Cloud functions which is available to the application code at runtime.
+Store the bot oauth token in Google Cloud Secrets. Set environment variable `SLACK_OAUTH_TOKEN` and run the task command `task create-slack-token-secret` to create a secret with the value of the slack token. The token is then mounted to Google Cloud functions which is available to the application code at runtime.

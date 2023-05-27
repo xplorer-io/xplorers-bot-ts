@@ -1,0 +1,103 @@
+version: 3
+
+dotenv:
+  - ./configuration/defaults.conf
+
+vars:
+  FUNCTION_ARTIFACT: terraform/handler.zip
+  GIT_VERSION:
+    sh: git rev-parse --short HEAD
+  GIT_BRANCH:
+    sh: git rev-parse --abbrev-ref HEAD
+
+tasks:
+  install:
+    desc: Install dependencies (node modules)
+    cmds:
+      - npm install
+
+  update-dependencies:
+    desc: Update dependencies (node modules)
+    cmds:
+      - npm update && npm upgrade
+
+  run-cloudfunctions-framework:
+    desc: Run cloud functions framework locally to test the application
+    cmds:
+      - npm run start-local-server
+
+  test:
+    desc: Run unit tests using jest
+    cmds:
+      - npm run test
+
+  compile:
+    desc: Compile typescript files
+    cmds:
+      - tsc
+
+  clean:
+    desc: Clean artifacts and dependencies
+    cmds:
+      - rm -rf dist/
+      - rm -rf {{.FUNCTION_ARTIFACT}}
+      - rm -rf src/index.js src/helpers/*.js index.js
+
+  package:
+    desc: Package and zip the application code for deployment
+    cmds:
+      - task: clean
+      - task: install
+      - task: compile
+      - mkdir -p dist
+      - cp -R node_modules src/* package*.json dist
+
+  create-slack-token-secret:
+    desc: Create a secret in GCP Secret Manager to store the slack token. Don't forget to set SLACK_OAUTH_TOKEN env var before running this command.
+    cmds:
+      - echo ${SLACK_OAUTH_TOKEN}
+      - printf ${SLACK_OAUTH_TOKEN} | gcloud secrets create slack-oauth-token --data-file=- --replication-policy=automatic
+    preconditions:
+      - sh: "[ '${SLACK_OAUTH_TOKEN}' == '<no value>' ]"
+        msg: Please set environment variable 'SLACK_OAUTH_TOKEN' before running this command
+
+  terraform-init:
+    desc: Initialize terraform backend, providers, plugins and modules
+    cmds:
+      - |
+        terraform -chdir=terraform init \
+        -backend-config="bucket=${XPLORERS_ARTIFACTS_BUCKET_NAME}" \
+        -backend-config="prefix=${XPLORERS_ARTIFACTS_BUCKET_TERRAFORM_PREFIX}"
+
+  terraform-plan:
+    desc: Creates an execution plan, which lets you preview the changes that Terraform plans to make to your infrastructure.
+    cmds:
+      - |
+        terraform -chdir=terraform plan \
+        -var "project_id=${GOOGLE_CLOUD_PROJECT_ID}" \
+        -var "region=${GOOGLE_CLOUD_PROJECT_REGION}" \
+        -var "zone=${GOOGLE_CLOUD_PROJECT_ZONE}" \
+        -var "xplorers_artifacts_bucket_name=${XPLORERS_ARTIFACTS_BUCKET_NAME}"
+
+  terraform-apply:
+    desc: Apply the planned changes to the target infrastructure
+    cmds:
+      - defer: { task: clean }
+      - task: terraform-init
+      - task: package
+      - |
+        terraform -chdir=terraform apply -auto-approve \
+        -var "project_id=${GOOGLE_CLOUD_PROJECT_ID}" \
+        -var "region=${GOOGLE_CLOUD_PROJECT_REGION}" \
+        -var "zone=${GOOGLE_CLOUD_PROJECT_ZONE}" \
+        -var "xplorers_artifacts_bucket_name=${XPLORERS_ARTIFACTS_BUCKET_NAME}"
+
+  terraform-destroy:
+    desc: Delete all resources created by terraform
+    cmds:
+      - |
+        terraform -chdir=terraform destroy -auto-approve \
+        -var "project_id=${GOOGLE_CLOUD_PROJECT_ID}" \
+        -var "region=${GOOGLE_CLOUD_PROJECT_REGION}" \
+        -var "zone=${GOOGLE_CLOUD_PROJECT_ZONE}" \
+        -var "xplorers_artifacts_bucket_name=${XPLORERS_ARTIFACTS_BUCKET_NAME}"
