@@ -28,6 +28,21 @@ export function getEmojisToReactWith(text: string): Array<string> {
     return Array.from(new Set(emojisToReactWith));
 }
 
+function validateIsEmojisDict(dict: any): boolean {
+    if (typeof dict !== "object" || dict === null) return false;
+
+    for (const key in dict) {
+        if (typeof key !== "string") return false;
+        if (!Array.isArray(dict[key])) return false;
+
+        for (const elem of dict[key]) {
+            if (typeof elem !== "string") return false;
+        }
+    }
+
+    return true;
+}
+
 function getEmojisFilePath(): string {
     var emojisFilePath: string = DEFAULT_EMOJIS_FILE_PATH;
 
@@ -58,7 +73,14 @@ function readEmojisFromFile(): Record<string, Array<string>> {
             encoding: "utf8",
             flag: "r",
         });
-        return JSON.parse(data);
+        const emojis: Record<string, Array<string>> = JSON.parse(data);
+        if (!validateIsEmojisDict(emojis)) {
+            console.error(
+                `Contents of emojis file ${emojisFilePath} is not in the correct format.`
+            );
+            return {};
+        }
+        return emojis;
     } catch (err) {
         console.error(`Error reading emojis file: ${err}`);
         return {};
