@@ -53,9 +53,12 @@ tasks:
       - cp -R node_modules src/* package*.json dist
 
   create-slack-token-secret:
-    desc: Create a secret in GCP Secret Manager to store the slack token. Don't forget to set SLACK_OAUTH_TOKEN env var before running this command.
+    desc: Create a secret in GCP Secret Manager
+    summary: |
+      Create a secret in GCP Secret Manager to store the slack to store slack token.
+
+      Don't forget to set SLACK_OAUTH_TOKEN env var before running this command.
     cmds:
-      - echo ${SLACK_OAUTH_TOKEN}
       - printf ${SLACK_OAUTH_TOKEN} | gcloud secrets create slack-oauth-token --data-file=- --replication-policy=automatic
     preconditions:
       - sh: "[ '${SLACK_OAUTH_TOKEN}' == '<no value>' ]"
