@@ -3,7 +3,7 @@
 ### Required software
 * [Google Cloud CLI](https://cloud.google.com/sdk/docs/install)
 * [Terraform CLI](https://developer.hashicorp.com/terraform/cli)
-* [Make](https://www.gnu.org/software/make/)
+* [Taskfile](https://taskfile.dev/installation)
 
 ### Login to Google Cloud via gcloud cli + setup application default credentials via Application Default Credentials (ADC) {#authenticate-to-google-cloud}
 
@@ -15,7 +15,7 @@ Run [***gcloud auth application-default login***](https://cloud.google.com/sdk/g
 
 ### Default configuration variables
 
-The entrypoint for this repository is in the file `configuration/defaults.conf` which stores necessary environment variables used by the Makefile to orchestrate and apply the changes using Terraform. Change these values according to your project configuration,
+The entrypoint for this repository is in the file `configuration/defaults.conf` which stores necessary environment variables used by Taskfile to orchestrate and apply the changes using Terraform. Change these values according to your project configuration,
 
 * `GOOGLE_CLOUD_PROJECT_ID` - Google Cloud project ID to use
 * `GOOGLE_CLOUD_PROJECT_REGION` - Google Cloud region to use
