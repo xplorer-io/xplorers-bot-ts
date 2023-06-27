@@ -36,7 +36,7 @@ export const xplorersbot: HttpFunction = async (req, res) => {
         req: req.body,
     };
 
-    await writeLog(log, message, LOG_METADATA);
+    writeLog(log, message, LOG_METADATA);
 
     switch (req.body.type) {
         case "url_verification":
