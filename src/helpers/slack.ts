@@ -29,44 +29,28 @@ export function getEmojisToReactWith(text: string): Array<string> {
 }
 
 function validateIsEmojisDict(dict: any): boolean {
-    if (typeof dict !== "object" || dict === null) return false;
+    if (typeof dict !== "object" || dict === null) {
+        return false;
+    }
 
     for (const key in dict) {
-        if (typeof key !== "string") return false;
-        if (!Array.isArray(dict[key])) return false;
-
-        for (const elem of dict[key]) {
-            if (typeof elem !== "string") return false;
+        if(Array.isArray(dict[key])) {
+            const everyElementInArrayIsString = dict[key].every((element: any) => typeof element === "string");
+            return everyElementInArrayIsString;
         }
     }
 
-    return true;
+    return false;
 }
 
 function getEmojisFilePath(): string {
-    let emojisFilePath: string = DEFAULT_EMOJIS_FILE_PATH;
+    const canUseEmojiFileFromEnv = process.env.EMOJIS_FILE_PATH && fs.existsSync(process.env.EMOJIS_FILE_PATH);
 
-    if (process.env.EMOJIS_FILE_PATH) {
-        // check if the file path is valid
-        if (!fs.existsSync(process.env.EMOJIS_FILE_PATH)) {
-            return "";
-        } else {
-            emojisFilePath = process.env.EMOJIS_FILE_PATH;
-        }
-    }
-
-    return emojisFilePath;
+    return canUseEmojiFileFromEnv ? process.env.EMOJIS_FILE_PATH! : DEFAULT_EMOJIS_FILE_PATH;
 }
 
 function readEmojisFromFile(): Record<string, Array<string>> {
     const emojisFilePath = getEmojisFilePath();
-
-    if (!emojisFilePath) {
-        console.error(
-            `Emojis file path ${process.env.EMOJIS_FILE_PATH} is invalid.`
-        );
-        return {};
-    }
 
     try {
         const data = fs.readFileSync(emojisFilePath, {
@@ -94,7 +78,7 @@ function findMatchingEmojiKeywords(
 ): Array<string> {
     const matchingEmojiKeywords: Array<string> = [];
 
-    for (const keyword of keywords) {
+    for (const keyword of keywords) { //this is too deep too
         if (lowerCaseText.includes(keyword)) {
             matchingEmojiKeywords.push(
                 Object.keys(emojis).find((key) =>
@@ -143,7 +127,9 @@ export async function reactToSlackPost(
 ): Promise<void> {
     const emojisToReactWith: Array<string> = getEmojisToReactWith(text);
 
-    if (!emojisToReactWith.length) return;
+    if (!emojisToReactWith.length) {
+        return;
+    }
 
     const currentEmojisOnSlackPost: Array<string> =
         await getCurrentEmojisOnSlackPost(
@@ -273,19 +259,12 @@ export const strategies: Record<string, SlackEventStrategy> = {
 export async function handleSlackMessageEvent(
     slackWebClient: SlackWebClient,
     slackEvent: SlackEvent
-) {
-    let strategyName: string;
-
-    if (!slackEvent.subtype) {
-        strategyName = slackEvent.type;
-    } else {
-        strategyName = slackEvent.subtype;
-    }
-
+): Promise<void> {
+    const strategyName: string = slackEvent.subtype ?? slackEvent.type;
     let strategy = strategies[strategyName];
     if (strategy) {
         await strategy.handle(slackWebClient, slackEvent);
-    } else {
-        console.log(`No strategy found for event type ${slackEvent.type}`);
+        return;
     }
+    console.log(`No strategy found for event type ${slackEvent.type}`);
 }
