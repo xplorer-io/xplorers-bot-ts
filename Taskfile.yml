@@ -75,6 +75,8 @@ tasks:
   terraform-plan:
     desc: Creates an execution plan, which lets you preview the changes that Terraform plans to make to your infrastructure.
     cmds:
+      - task: terraform-init
+      - task: package
       - |
         terraform -chdir=terraform plan \
         -var "project_id=${GOOGLE_CLOUD_PROJECT_ID}" \

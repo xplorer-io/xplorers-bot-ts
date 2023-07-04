@@ -41,6 +41,10 @@ There are a million ways to drive engagement in Slack. Current features of Xplor
 
 Please follow [slack setup guide](docs/slack_setup.md) to configure event subscription and oauth permissions for the slack bot.
 
+## Feature branch based deployments
+
+Please follow [feature branch deployment guide](docs/feature_branch_deployment.md) to deploy a feature branch deployment of XplorersBot.
+
 ## Google Cloud resources
 
 See [Google Cloud Resources](docs/google_cloud_resources.md) section for a list of resources deployed to Google Cloud to get the slack bot running.

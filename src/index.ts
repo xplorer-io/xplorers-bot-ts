@@ -26,7 +26,7 @@ const LOG_METADATA = {
 
 const slackWebClient: SlackWebClient = new WebClient(
     process.env.SLACK_OAUTH_TOKEN ||
-        fs.readFileSync("/etc/secrets/slack-oauth-token")
+        fs.readFileSync(`/etc/secrets/slack-oauth-token-${process.env.TERRAFORM_WORKSPACE_NAME}`)
 );
 
 // app entry point
