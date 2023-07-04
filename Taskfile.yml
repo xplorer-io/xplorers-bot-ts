@@ -69,7 +69,7 @@ tasks:
     cmds:
       - |
         terraform -chdir=terraform init \
-        -backend-config="bucket=${XPLORERS_ARTIFACTS_BUCKET_NAME}" \
+        -backend-config="bucket={{.GIT_BRANCH}}-${XPLORERS_ARTIFACTS_BUCKET_NAME}" \
         -backend-config="prefix=${XPLORERS_ARTIFACTS_BUCKET_TERRAFORM_PREFIX}"
 
   terraform-plan:
@@ -80,7 +80,8 @@ tasks:
         -var "project_id=${GOOGLE_CLOUD_PROJECT_ID}" \
         -var "region=${GOOGLE_CLOUD_PROJECT_REGION}" \
         -var "zone=${GOOGLE_CLOUD_PROJECT_ZONE}" \
-        -var "xplorers_artifacts_bucket_name=${XPLORERS_ARTIFACTS_BUCKET_NAME}"
+        -var "xplorers_artifacts_bucket_name={{.GIT_BRANCH}}-${XPLORERS_ARTIFACTS_BUCKET_NAME}" \
+        -var "git_branch={{.GIT_BRANCH}}"
 
   terraform-apply:
     desc: Apply the planned changes to the target infrastructure
@@ -93,7 +94,8 @@ tasks:
         -var "project_id=${GOOGLE_CLOUD_PROJECT_ID}" \
         -var "region=${GOOGLE_CLOUD_PROJECT_REGION}" \
         -var "zone=${GOOGLE_CLOUD_PROJECT_ZONE}" \
-        -var "xplorers_artifacts_bucket_name=${XPLORERS_ARTIFACTS_BUCKET_NAME}"
+        -var "xplorers_artifacts_bucket_name={{.GIT_BRANCH}}-${XPLORERS_ARTIFACTS_BUCKET_NAME}" \
+        -var "git_branch={{.GIT_BRANCH}}"
 
   terraform-destroy:
     desc: Delete all resources created by terraform
@@ -103,4 +105,5 @@ tasks:
         -var "project_id=${GOOGLE_CLOUD_PROJECT_ID}" \
         -var "region=${GOOGLE_CLOUD_PROJECT_REGION}" \
         -var "zone=${GOOGLE_CLOUD_PROJECT_ZONE}" \
-        -var "xplorers_artifacts_bucket_name=${XPLORERS_ARTIFACTS_BUCKET_NAME}"
+        -var "xplorers_artifacts_bucket_name={{.GIT_BRANCH}}-${XPLORERS_ARTIFACTS_BUCKET_NAME}" \
+        -var "git_branch={{.GIT_BRANCH}}"

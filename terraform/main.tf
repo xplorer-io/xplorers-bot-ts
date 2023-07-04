@@ -21,7 +21,7 @@ resource "google_storage_bucket_object" "xplorers_artifact" {
 }
 
 resource "google_project_iam_custom_role" "xplorers_bot_function_storage_role" {
-  role_id     = var.xplorers_bot_function_storage_role_id
+  role_id     = "${var.xplorers_bot_function_storage_role_id}_${var.git_branch}"
   title       = "Custom Storage Role for Xplorers bot function"
   description = "Custom Storage Role for Xplorers bot function"
   permissions = [
@@ -30,12 +30,12 @@ resource "google_project_iam_custom_role" "xplorers_bot_function_storage_role" {
 }
 
 resource "google_service_account" "xplorers_bot_function_service_account" {
-  account_id   = "xplorers-bot-service-account"
+  account_id   = "xplorers-bot-sa-${var.git_branch}"
   display_name = "Service Account used by Xplorers Bot function"
 }
 
 resource "google_cloudfunctions_function" "xplorers_bot_function" {
-  name                         = var.function_name
+  name                         = "${var.function_name}-${var.git_branch}"
   description                  = "Xplorers Bot function that receives events from Slack and processes them accordingly"
   runtime                      = var.function_runtime
   entry_point                  = var.function_entry_point
@@ -78,7 +78,7 @@ resource "google_cloudfunctions_function_iam_binding" "xplorers_bot_invoker_bind
 }
 
 resource "google_project_iam_custom_role" "xplorers_bot_function_role" {
-  role_id     = var.xplorers_bot_function_role_id
+  role_id     = "${var.xplorers_bot_function_role_id}_${var.git_branch}"
   title       = "Xplorers bot function role to interact with other GCP services"
   description = "Allow xplorers bot function to interact with other GCP services"
   permissions = var.xplorers_bot_function_role_permissions

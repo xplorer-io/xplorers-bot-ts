@@ -1,3 +1,9 @@
+variable "git_branch" {
+  type        = string
+  description = "Branch of the xplorers-bot-ts repository to deploy"
+  default     = "master"
+}
+
 variable "project_id" {
   type      = string
   sensitive = true
