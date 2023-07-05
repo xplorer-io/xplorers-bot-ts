@@ -88,7 +88,6 @@ tasks:
     desc: Apply the planned changes to the target infrastructure
     cmds:
       - defer: { task: clean }
-      - task: terraform-init
       - task: package
       - |
         terraform -chdir=terraform apply -auto-approve \
