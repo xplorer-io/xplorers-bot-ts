@@ -45,4 +45,5 @@ jobs:
     - id: deploy
       name: Deploy XplorersBot
       run: |-
+        terraform workspace select prod
         task terraform-apply
