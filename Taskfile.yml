@@ -41,7 +41,7 @@ tasks:
     cmds:
       - rm -rf dist/
       - rm -rf {{.FUNCTION_ARTIFACT}}
-      - rm -rf src/index.js src/helpers/*.js index.js
+      - rm -rf out/
 
   package:
     desc: Package and zip the application code for deployment
@@ -50,7 +50,7 @@ tasks:
       - task: install
       - task: compile
       - mkdir -p dist
-      - cp -R node_modules src/* package*.json dist
+      - cp -R node_modules out/* package*.json dist
 
   create-slack-token-secret:
     desc: Create a secret in GCP Secret Manager
