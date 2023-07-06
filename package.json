@@ -3,7 +3,7 @@
   "scripts": {
     "start": "functions-framework --target=xplorersbot",
     "test": "task clean && jest --verbose --coverage tests",
-    "start-local-server": "task clean && tsc && cd src && npx functions-framework --target=xplorersbot --signature-type=http"
+    "start-local-server": "task clean && tsc && cd out && npx functions-framework --target=xplorersbot --signature-type=http"
   },
   "dependencies": {
     "@google-cloud/logging": "^10.4.0",
