@@ -1,5 +1,3 @@
-const { Reaction, ErrorCode } = require("@slack/web-api");
-import { DEFAULT_EMOJIS_FILE_PATH } from "./constants";
 import SLACK_MESSAGE_BLOCKS from "./files/welcomeMessageBlocks.json";
 import { SlackWebClient } from "./types";
 import {
@@ -8,13 +6,11 @@ import {
     SlackMessageEvent,
     SlackMessageChangedEvent,
 } from "./interfaces";
-import fs from "fs";
+import emojis from "./files/emojis.json";
+import { ErrorCode } from "@slack/web-api";
 
 export function getEmojisToReactWith(text: string): Array<string> {
     const lowerCaseText = text.toLowerCase();
-
-    // Read list of emojis from file
-    const emojis: Record<string, Array<string>> = readEmojisFromFile();
 
     const keywords = Object.values(emojis).flat();
 
@@ -28,49 +24,6 @@ export function getEmojisToReactWith(text: string): Array<string> {
     return Array.from(new Set(emojisToReactWith));
 }
 
-function validateIsEmojisDict(dict: any): boolean {
-    if (typeof dict !== "object" || dict === null) {
-        return false;
-    }
-
-    for (const key in dict) {
-        if(Array.isArray(dict[key])) {
-            const everyElementInArrayIsString = dict[key].every((element: any) => typeof element === "string");
-            return everyElementInArrayIsString;
-        }
-    }
-
-    return false;
-}
-
-function getEmojisFilePath(): string {
-    const canUseEmojiFileFromEnv = process.env.EMOJIS_FILE_PATH && fs.existsSync(process.env.EMOJIS_FILE_PATH);
-
-    return canUseEmojiFileFromEnv ? process.env.EMOJIS_FILE_PATH! : DEFAULT_EMOJIS_FILE_PATH;
-}
-
-function readEmojisFromFile(): Record<string, Array<string>> {
-    const emojisFilePath = getEmojisFilePath();
-
-    try {
-        const data = fs.readFileSync(emojisFilePath, {
-            encoding: "utf8",
-            flag: "r",
-        });
-        const emojis: Record<string, Array<string>> = JSON.parse(data);
-        if (!validateIsEmojisDict(emojis)) {
-            console.error(
-                `Contents of emojis file ${emojisFilePath} is not in the correct format.`
-            );
-            return {};
-        }
-        return emojis;
-    } catch (err) {
-        console.error(`Error reading emojis file: ${err}`);
-        return {};
-    }
-}
-
 function findMatchingEmojiKeywords(
     keywords: string[],
     lowerCaseText: string,
@@ -78,7 +31,8 @@ function findMatchingEmojiKeywords(
 ): Array<string> {
     const matchingEmojiKeywords: Array<string> = [];
 
-    for (const keyword of keywords) { //this is too deep too
+    for (const keyword of keywords) {
+        //this is too deep too
         if (lowerCaseText.includes(keyword)) {
             matchingEmojiKeywords.push(
                 Object.keys(emojis).find((key) =>
@@ -108,8 +62,8 @@ export async function getCurrentEmojisOnSlackPost(
             );
             return [];
         }
-        return messageReactions.map(
-            (reaction: typeof Reaction) => reaction.name
+        return messageReactions.flatMap((reaction) =>
+            reaction.name ? [reaction.name] : []
         );
     } catch (error) {
         console.error(
