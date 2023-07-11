@@ -2,8 +2,9 @@ import { HttpFunction } from "@google-cloud/functions-framework";
 import { Log, Logging } from "@google-cloud/logging";
 import { SUCCESS_MESSAGE } from "./helpers/constants";
 import { writeLog } from "./helpers/logs";
-import { handleSlackMessageEvent } from "./helpers/slack";
+import { handleSlackMessageEvent, postMessageToSlack } from "./helpers/slack";
 import { SlackWebClient } from "./helpers/types";
+import { askOpenAI } from "./helpers/openai";
 const { WebClient } = require("@slack/web-api");
 const fs = require("fs");
 
@@ -45,6 +46,11 @@ export const xplorersbot: HttpFunction = async (req, res) => {
             res.status(200).send(req.body.challenge);
             break;
         case "event_callback":
+            if (req.body.event.channel === process.env.XPLORERS_OPENAI_SLACK_CHANNEL_ID) {
+                const openAIResponse = await askOpenAI(req.body.event.text);
+                await postMessageToSlack(slackWebClient, openAIResponse, req.body.event.channel);
+            }
+
             if (req.body.event.type === "message") {
                 await handleSlackMessageEvent(slackWebClient, req.body.event);
             }

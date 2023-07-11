@@ -39,16 +39,10 @@ variable "function_entry_point" {
   default     = "xplorersbot"
 }
 
-variable "slack_oauth_token_mount_path" {
+variable "secret_mount_path" {
   type        = string
   description = "Path where the secret will be mounted in the function container"
   default     = "/etc/secrets"
-}
-
-variable "slack_oauth_token_secret_name" {
-  type        = string
-  description = "Name of the secret containing the slack oauth token that is mounted to the function"
-  default     = "slack-oauth-token"
 }
 
 variable "xplorers_bot_function_storage_role_id" {
@@ -88,4 +82,14 @@ variable "xplorers_bot_function_role_permissions" {
     "secretmanager.versions.access",
     "logging.logEntries.create",
   ]
+}
+
+variable "azure_openai_deployment_id" {
+  type = string
+  description = "Deployment id for the azure openai deployment"
+}
+
+variable "xplorers_openai_slack_channel_id" {
+  type = string
+  description = "Slack channel id for the xplorers openai slack channel"
 }

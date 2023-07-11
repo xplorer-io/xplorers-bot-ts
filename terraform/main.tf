@@ -49,13 +49,27 @@ resource "google_cloudfunctions_function" "xplorers_bot_function" {
   max_instances                = var.xplorers_bot_function_max_instances
 
   secret_volumes {
-    mount_path = var.slack_oauth_token_mount_path
+    mount_path = var.secret_mount_path
     project_id = var.project_id
-    secret     = "${var.slack_oauth_token_secret_name}-${terraform.workspace}"
+    secret     = "slack-oauth-token-${terraform.workspace}"
+  }
+
+  secret_volumes {
+    mount_path = var.secret_mount_path
+    project_id = var.project_id
+    secret     = "azure-openai-key-${terraform.workspace}"
+  }
+
+  secret_volumes {
+    mount_path = var.secret_mount_path
+    project_id = var.project_id
+    secret     = "azure-openai-endpoint-${terraform.workspace}"
   }
 
   environment_variables = {
     TERRAFORM_WORKSPACE_NAME = "${terraform.workspace}"
+    AZURE_OPENAI_DEPLOYMENT_ID = var.azure_openai_deployment_id
+    XPLORERS_OPENAI_SLACK_CHANNEL_ID = var.xplorers_openai_slack_channel_id
   }
 
   lifecycle {

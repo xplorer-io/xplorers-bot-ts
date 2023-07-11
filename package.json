@@ -6,6 +6,7 @@
     "start-local-server": "task clean && tsc && cd out && npx functions-framework --target=xplorersbot --signature-type=http"
   },
   "dependencies": {
+    "@azure/openai": "^1.0.0-beta.2",
     "@google-cloud/logging": "^10.4.0",
     "@slack/web-api": "^6.8.1"
   },

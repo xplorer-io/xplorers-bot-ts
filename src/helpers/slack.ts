@@ -138,7 +138,7 @@ export async function addReactionToSlackPost(
     }
 }
 
-async function postMessageToSlack(
+export async function postMessageToSlack(
     slackWebClient: SlackWebClient,
     text: string,
     slackChannel: string
