@@ -2,17 +2,19 @@ import { HttpFunction } from "@google-cloud/functions-framework";
 import { Log, Logging } from "@google-cloud/logging";
 import { SUCCESS_MESSAGE } from "./helpers/constants";
 import { writeLog } from "./helpers/logs";
-import { handleSlackMessageEvent } from "./helpers/slack";
+import { handleSlackMessageEvent, postMessageToSlack } from "./helpers/slack";
 import { SlackWebClient } from "./helpers/types";
+import { createHttpTask } from "./helpers/task";
+import { readSecret } from "./helpers/secrets";
+import { askOpenAI } from "./helpers/openai";
 const { WebClient } = require("@slack/web-api");
-const fs = require("fs");
 
 // Creates a client
 const logging: Logging = new Logging();
 
 // Logging parameters
 const log: Log = logging.log(process.env.LOG_NAME || "xplorers-bot-log");
-const LOG_METADATA = {
+var LOG_METADATA = {
     resource: {
         type: "cloud_function",
         labels: {
@@ -26,9 +28,7 @@ const LOG_METADATA = {
 
 const slackWebClient: SlackWebClient = new WebClient(
     process.env.SLACK_OAUTH_TOKEN ||
-        fs.readFileSync(
-            `/etc/secrets/slack-oauth-token-${process.env.TERRAFORM_WORKSPACE_NAME}`
-        )
+        readSecret(`/etc/secrets/slack-oauth-token-${process.env.TF_WORKSPACE}`)
 );
 
 // app entry point
@@ -45,6 +45,17 @@ export const xplorersbot: HttpFunction = async (req, res) => {
             res.status(200).send(req.body.challenge);
             break;
         case "event_callback":
+            if (
+                req.body.event.channel ===
+                process.env.XPLORERS_OPENAI_SLACK_CHANNEL_ID
+            ) {
+                if (
+                    req.body.event.text.toLowerCase().startsWith("hey openai")
+                ) {
+                    await createHttpTask(req.body);
+                }
+                break;
+            }
             if (req.body.event.type === "message") {
                 await handleSlackMessageEvent(slackWebClient, req.body.event);
             }
@@ -52,4 +63,26 @@ export const xplorersbot: HttpFunction = async (req, res) => {
 
     res.status(200).send(SUCCESS_MESSAGE);
     console.log("Successfully processed slack message");
+};
+
+// openai app entry point
+export const xplorersbotOpenAI: HttpFunction = async (req, res) => {
+    const parsedSlackEvent = JSON.parse(req.body);
+    const message = {
+        name: "Slack OpenAI Event",
+        req: parsedSlackEvent,
+    };
+
+    // change function name in log metadata
+    LOG_METADATA.resource.labels.function_name = "xplorers-openai-function";
+
+    writeLog(log, message, LOG_METADATA);
+    const openAIResponse = await askOpenAI(parsedSlackEvent.event.text);
+    await postMessageToSlack(
+        slackWebClient,
+        openAIResponse,
+        parsedSlackEvent.event.channel
+    );
+    res.status(200).send(SUCCESS_MESSAGE);
+    console.log("Successfully processed openai event");
 };

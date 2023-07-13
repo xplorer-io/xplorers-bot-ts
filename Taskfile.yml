@@ -59,10 +59,16 @@ tasks:
 
       Don't forget to set SLACK_OAUTH_TOKEN env var before running this command.
     cmds:
-      - printf ${SLACK_OAUTH_TOKEN} | gcloud secrets create slack-oauth-token --data-file=- --replication-policy=automatic
+      - printf ${SLACK_OAUTH_TOKEN} | gcloud secrets create slack-oauth-token-${TF_WORKSPACE} --data-file=- --replication-policy=automatic
     preconditions:
       - sh: "[ '${SLACK_OAUTH_TOKEN}' == '<no value>' ]"
         msg: Please set environment variable 'SLACK_OAUTH_TOKEN' before running this command
+
+  terraform-fmt:
+    desc: Format terraform files
+    cmds:
+      - |
+        terraform -chdir=terraform fmt
 
   terraform-init:
     desc: Initialize terraform backend, providers, plugins and modules
@@ -82,7 +88,9 @@ tasks:
         -var "project_id=${GOOGLE_CLOUD_PROJECT_ID}" \
         -var "region=${GOOGLE_CLOUD_PROJECT_REGION}" \
         -var "zone=${GOOGLE_CLOUD_PROJECT_ZONE}" \
-        -var "xplorers_artifacts_bucket_name=${XPLORERS_ARTIFACTS_BUCKET_NAME}"
+        -var "xplorers_artifacts_bucket_name=${XPLORERS_ARTIFACTS_BUCKET_NAME}" \
+        -var "xplorers_openai_slack_channel_id=${XPLORERS_OPENAI_SLACK_CHANNEL_ID}" \
+        -var "azure_openai_deployment_id=${AZURE_OPENAI_DEPLOYMENT_ID}"
 
   terraform-apply:
     desc: Apply the planned changes to the target infrastructure
@@ -94,7 +102,9 @@ tasks:
         -var "project_id=${GOOGLE_CLOUD_PROJECT_ID}" \
         -var "region=${GOOGLE_CLOUD_PROJECT_REGION}" \
         -var "zone=${GOOGLE_CLOUD_PROJECT_ZONE}" \
-        -var "xplorers_artifacts_bucket_name=${XPLORERS_ARTIFACTS_BUCKET_NAME}"
+        -var "xplorers_artifacts_bucket_name=${XPLORERS_ARTIFACTS_BUCKET_NAME}" \
+        -var "xplorers_openai_slack_channel_id=${XPLORERS_OPENAI_SLACK_CHANNEL_ID}" \
+        -var "azure_openai_deployment_id=${AZURE_OPENAI_DEPLOYMENT_ID}"
 
   terraform-destroy:
     desc: Delete all resources created by terraform
@@ -104,4 +114,6 @@ tasks:
         -var "project_id=${GOOGLE_CLOUD_PROJECT_ID}" \
         -var "region=${GOOGLE_CLOUD_PROJECT_REGION}" \
         -var "zone=${GOOGLE_CLOUD_PROJECT_ZONE}" \
-        -var "xplorers_artifacts_bucket_name=${XPLORERS_ARTIFACTS_BUCKET_NAME}"
+        -var "xplorers_artifacts_bucket_name=${XPLORERS_ARTIFACTS_BUCKET_NAME}" \
+        -var "xplorers_openai_slack_channel_id=${XPLORERS_OPENAI_SLACK_CHANNEL_ID}" \
+        -var "azure_openai_deployment_id=${AZURE_OPENAI_DEPLOYMENT_ID}"

@@ -34,6 +34,7 @@ There are a million ways to drive engagement in Slack. Current features of Xplor
 
 * ***Welcome a new slack user*** - When a user joins a slack channel, XplorersBot crafts a welcome message and posts in the channel to welcome the user.
 * ***React to slack posts with emojis*** - With every slack post, XplorersBot checks the text for any keyword matches and reacts to the post with appropriate emoji's. For example, for text `This is a kubernetes environment`, XplorersBot will react to the post with `kubernetes` emoji.
+* ***Interact with OpenAI from Slack*** - XplorersBot can interact with OpenAI from slack. For example, if you post `hey openai, tell me a joke`, XplorersBot will respond with a joke. Please read [OpenAI setup](docs/openai_setup.md) to learn more about setting up OpenAI with Slack.
 
 > As every slack organisation can have custom emojis added, the emoji set `src/helpers/files/emojis.json` will need to be adjusted accordingly to fit your slack emoji set.
 
