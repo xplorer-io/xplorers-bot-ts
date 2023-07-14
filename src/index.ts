@@ -2,11 +2,12 @@ import { HttpFunction } from "@google-cloud/functions-framework";
 import { Log, Logging } from "@google-cloud/logging";
 import { SUCCESS_MESSAGE } from "./helpers/constants";
 import { writeLog } from "./helpers/logs";
-import { handleSlackMessageEvent, postMessageToSlack } from "./helpers/slack";
+import { handleSlackMessageEvent } from "./slack/slackEventHandler";
 import { SlackWebClient } from "./helpers/types";
 import { createHttpTask } from "./helpers/task";
 import { readSecret } from "./helpers/secrets";
 import { askOpenAI } from "./helpers/openai";
+import { postMessageToSlack } from "./slack/slackInteraction";
 const { WebClient } = require("@slack/web-api");
 
 // Creates a client
