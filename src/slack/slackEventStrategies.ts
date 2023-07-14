@@ -11,7 +11,7 @@ interface SlackEventStrategy {
     handle(slackWebClient: SlackWebClient, slackEvent: SlackEvent): void;
 }
 
-class ChannelJoinStrategy implements SlackEventStrategy {
+export class ChannelJoinStrategy implements SlackEventStrategy {
     async handle(
         slackWebClient: SlackWebClient,
         slackEvent: SlackChannelJoinEvent
@@ -22,7 +22,7 @@ class ChannelJoinStrategy implements SlackEventStrategy {
     }
 }
 
-class MessageStrategy implements SlackEventStrategy {
+export class MessageStrategy implements SlackEventStrategy {
     async handle(
         slackWebClient: SlackWebClient,
         slackEvent: SlackMessageEvent
