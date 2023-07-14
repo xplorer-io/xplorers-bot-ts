@@ -9,7 +9,7 @@ export async function handleSlackMessageEvent(
     const strategyName: string = slackEvent.subtype ?? slackEvent.type;
     let strategy = strategies[strategyName];
     if (strategy) {
-        await strategy.handle(slackWebClient, slackEvent);
+        strategy.handle(slackWebClient, slackEvent);
         return;
     }
     console.log(`No strategy found for event type ${slackEvent.type}`);
