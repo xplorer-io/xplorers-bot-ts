@@ -1,12 +1,12 @@
-import { handleSlackMessageEvent } from "../../src/helpers/slack";
-import {
-    MessageChangedStrategy,
-    ChannelJoinStrategy,
-    MessageStrategy,
-    addReactionToSlackPost
-} from "../../src/helpers/slack";
-import { SlackWebClient } from "../../src/helpers/types";
 import { describe, test, expect, jest, it } from "@jest/globals";
+import { addReactionToSlackPost } from "../../src/slack/slackInteraction";
+import { handleSlackMessageEvent } from "../../src/slack/slackEventHandler";
+import { SlackWebClient } from "../../src/helpers/types";
+import {
+    ChannelJoinStrategy,
+    MessageChangedStrategy,
+    MessageStrategy,
+} from "../../src/slack/slackEventStrategies";
 
 const slackMessageChangedEvent = {
     channel_type: "channel",
