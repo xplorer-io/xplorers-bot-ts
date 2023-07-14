@@ -14,7 +14,7 @@ const logging: Logging = new Logging();
 
 // Logging parameters
 const log: Log = logging.log(process.env.LOG_NAME || "xplorers-bot-log");
-var LOG_METADATA = {
+let LOG_METADATA = {
     resource: {
         type: "cloud_function",
         labels: {

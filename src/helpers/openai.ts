@@ -41,6 +41,5 @@ export async function askOpenAI(message: string) {
         return result.choices[0].message.content;
     } catch (err) {
         console.error("Error occured when interacting with OpenAI:", err);
-        console.error;
     }
 }
