@@ -78,11 +78,15 @@ export const xplorersbotOpenAI: HttpFunction = async (req, res) => {
 
     writeLog(log, message, LOG_METADATA);
     const openAIResponse = await askOpenAI(parsedSlackEvent.event.text);
-    await postMessageToSlack(
-        slackWebClient,
-        openAIResponse,
-        parsedSlackEvent.event.channel
-    );
-    res.status(200).send(SUCCESS_MESSAGE);
+
+    if (openAIResponse) {
+        await postMessageToSlack(
+            slackWebClient,
+            openAIResponse,
+            parsedSlackEvent.event.channel
+        );
+    }
+
     console.log("Successfully processed openai event");
+    res.status(200).send(SUCCESS_MESSAGE);
 };

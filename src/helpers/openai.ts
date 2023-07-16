@@ -1,6 +1,5 @@
 import { readSecret } from "./secrets";
-
-const { OpenAIClient, AzureKeyCredential } = require("@azure/openai");
+import { OpenAIClient, AzureKeyCredential } from "@azure/openai";
 
 let messages = [
     {
@@ -28,17 +27,20 @@ export async function askOpenAI(message: string) {
         azureOpenAIEndpoint,
         new AzureKeyCredential(azureApiKey)
     );
-    const deploymentId = process.env.AZURE_OPENAI_DEPLOYMENT_ID;
+    const deploymentId = process.env.AZURE_OPENAI_DEPLOYMENT_ID!;
 
     messages.push({ role: "user", content: message });
 
     try {
-        const result = await client.getChatCompletions(deploymentId, messages);
+        const chatCompletion = await client.getChatCompletions(
+            deploymentId,
+            messages
+        );
 
         // json result
-        console.log(JSON.stringify(result, null, 2));
+        console.log(JSON.stringify(chatCompletion, null, 2));
 
-        return result.choices[0].message.content;
+        return chatCompletion?.choices?.[0]?.message?.content ?? "";
     } catch (err) {
         console.error("Error occured when interacting with OpenAI:", err);
     }
