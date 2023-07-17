@@ -45,19 +45,21 @@ export const xplorersbot: HttpFunction = async (req, res) => {
             res.status(200).send(req.body.challenge);
             break;
         case "event_callback":
-            if (
-                req.body.event.channel ===
-                process.env.XPLORERS_OPENAI_SLACK_CHANNEL_ID
-            ) {
-                if (
-                    req.body.event.text.toLowerCase().startsWith("hey openai")
-                ) {
-                    await createHttpTask(req.body);
-                }
+            const slackEvent = req?.body?.event;
+            const isChannelOpenAI =
+                slackEvent?.channel ===
+                process.env.XPLORERS_OPENAI_SLACK_CHANNEL_ID;
+            const messageStartsWithHeyOpenAI = slackEvent?.text
+                .toLowerCase()
+                .startsWith("hey openai");
+
+            if (isChannelOpenAI && messageStartsWithHeyOpenAI) {
+                await createHttpTask(req.body);
                 break;
             }
-            if (req.body.event.type === "message") {
-                await handleSlackMessageEvent(slackWebClient, req.body.event);
+
+            if (slackEvent?.type === "message") {
+                await handleSlackMessageEvent(slackWebClient, slackEvent);
             }
     }
 
