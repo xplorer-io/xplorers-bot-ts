@@ -22,3 +22,6 @@ The entrypoint for this repository is in the file `configuration/defaults.conf` 
 * `GOOGLE_CLOUD_PROJECT_ZONE` - Google Cloud zone to use
 * `XPLORERS_ARTIFACTS_BUCKET_NAME` - Bucket to use to store artifacts and terraform state information
 * `XPLORERS_ARTIFACTS_BUCKET_TERRAFORM_PREFIX` - Bucket prefix to store terraform state information
+* `XPLORERS_OPENAI_SLACK_CHANNEL_ID` - Slack channel ID to use for OpenAI interaction
+* `TF_WORKSPACE` - Terraform workspace to use. Defaults to `dev`.
+* `AZURE_OPENAI_DEPLOYMENT_ID` - Azure OpenAI deployment ID to use. See [OpenAI setup](docs/openai_setup.md) for details.

@@ -17,6 +17,7 @@ terraform workspace select dev
 
 Create a secret with name `slack-oauth-token-dev` to store your slack token to be used by your feature branch based deployment where `dev` refers to the terraform workspace name.
 
+If you are testing the function locally, set the environment variable `SLACK_OAUTH_TOKEN` instead before running `task run-cloudfunctions-framework`.
 
 ### Deploy your feature branch
 
