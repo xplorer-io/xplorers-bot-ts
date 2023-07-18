@@ -100,7 +100,9 @@ resource "google_project_iam_member" "xplorers_bot_function_custom_role_binding"
 }
 
 resource "google_cloud_tasks_queue" "xplorers_bot_queue" {
-  name     = "xplorers-bot-queue-${terraform.workspace}"
+  /* Todo: remove the -tmp in the next Pull Request
+  https://cloud.google.com/tasks/docs/deleting-appengine-queues-and-tasks#deleting_queues*/
+  name     = "xplorers-bot-queue-${terraform.workspace}-tmp"
   project  = var.project_id
   location = var.region
   rate_limits {
