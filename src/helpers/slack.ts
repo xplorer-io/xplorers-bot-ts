@@ -141,15 +141,21 @@ export async function addReactionToSlackPost(
 export async function postMessageToSlack(
     slackWebClient: SlackWebClient,
     text: string,
-    slackChannel: string
+    slackChannel: string,
+    thread_ts?: string
 ) {
-    const postMessageResponse = await slackWebClient.chat.postMessage({
-        text: text,
-        channel: slackChannel,
-    });
-    console.log(
-        `Successfully sent message ${postMessageResponse.ts} to slack channel ${slackChannel}`
-    );
+    if (thread_ts) {
+        return await slackWebClient.chat.postMessage({
+            text: text,
+            channel: slackChannel,
+            thread_ts: thread_ts,
+        });
+    } else {
+        return await slackWebClient.chat.postMessage({
+            text: text,
+            channel: slackChannel,
+        });
+    }
 }
 
 async function handleSlackJoinEvent(

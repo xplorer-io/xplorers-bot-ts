@@ -3,7 +3,8 @@
   "scripts": {
     "start": "functions-framework --target=xplorersbot",
     "test": "task clean && jest --verbose --coverage tests",
-    "start-local-server": "task clean && tsc && cd out && npx functions-framework --target=xplorersbot --signature-type=http"
+    "start-xplorersbot-server": "task clean && tsc && cd out && npx functions-framework --target=xplorersbot --signature-type=http",
+    "start-openai-server": "task clean && tsc && cd out && npx functions-framework --target=xplorersbotOpenAI --signature-type=http"
   },
   "dependencies": {
     "@azure/openai": "^1.0.0-beta.2",

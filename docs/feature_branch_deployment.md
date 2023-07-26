@@ -9,8 +9,8 @@ Terraform [workspaces](https://www.terraform.io/docs/state/workspaces.html) allo
 Run the following commands to create and switch to a `dev` workspace:
 
 ```
-terraform workspace new dev
-terraform workspace select dev
+terraform -chdir=terraform workspace new dev
+terraform -chdir=terraform workspace select dev
 ```
 
 ### Create a slack secret in Google Secret Manager
