@@ -55,21 +55,21 @@ export const xplorersbot: HttpFunction = async (req, res) => {
             // text could be in slackEvent.text or slackEvent.message.text
             const message = slackEvent?.text ?? slackEvent?.message?.text;
 
-            if (isChannelOpenAI) {
-                const messageStartsWithHeyOpenAI = message
-                    .toLowerCase()
-                    .startsWith("hey openai");
-
-                if (messageStartsWithHeyOpenAI) {
-                    await createHttpTask(req.body);
-                }
-                break;
-            }
+            const messageStartsWithHeyOpenAI = message
+                .toLowerCase()
+                .startsWith("hey openai");
 
             if (slackEvent?.type === "message") {
                 await handleSlackMessageEvent(slackWebClient, slackEvent);
                 break;
             }
+
+            if (isChannelOpenAI && messageStartsWithHeyOpenAI) {
+                await createHttpTask(req.body);
+                break;
+            }
+
+            break;
 
         case "url_verification":
             res.status(200).send(req.body.challenge);
@@ -95,7 +95,7 @@ export const xplorersbotOpenAI: HttpFunction = async (req, res) => {
     const message =
         parsedSlackEvent?.event?.text ?? parsedSlackEvent?.event?.message?.text;
     const ts =
-    parsedSlackEvent?.event?.message?.ts ?? parsedSlackEvent?.event?.ts;
+        parsedSlackEvent?.event?.message?.ts ?? parsedSlackEvent?.event?.ts;
 
     writeLog(log, logMessage, LOG_METADATA);
 

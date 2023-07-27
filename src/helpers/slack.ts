@@ -7,7 +7,7 @@ import {
     SlackMessageChangedEvent,
 } from "./interfaces";
 import emojis from "./files/emojis.json";
-import { ErrorCode } from "@slack/web-api";
+import { ChatPostMessageArguments, ErrorCode } from "@slack/web-api";
 
 export function getEmojisToReactWith(text: string): Array<string> {
     const lowerCaseText = text.toLowerCase();
@@ -142,20 +142,18 @@ export async function postMessageToSlack(
     slackWebClient: SlackWebClient,
     text: string,
     slackChannel: string,
-    thread_ts?: string
+    threadTs?: string
 ) {
-    if (thread_ts) {
-        return await slackWebClient.chat.postMessage({
-            text: text,
-            channel: slackChannel,
-            thread_ts: thread_ts,
-        });
-    } else {
-        return await slackWebClient.chat.postMessage({
-            text: text,
-            channel: slackChannel,
-        });
+    let chatPostMessageArguments: ChatPostMessageArguments = {
+        text: text,
+        channel: slackChannel,
+    };
+
+    if (threadTs) {
+        chatPostMessageArguments.thread_ts = threadTs;
     }
+
+    return await slackWebClient.chat.postMessage(chatPostMessageArguments);
 }
 
 async function handleSlackJoinEvent(
