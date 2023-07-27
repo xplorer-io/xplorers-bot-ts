@@ -59,7 +59,7 @@ export const xplorersbot: HttpFunction = async (req, res) => {
                 .toLowerCase()
                 .startsWith("hey openai");
 
-            if (slackEvent?.type === "message") {
+            if (!isChannelOpenAI && slackEvent?.type === "message") {
                 await handleSlackMessageEvent(slackWebClient, slackEvent);
                 break;
             }
