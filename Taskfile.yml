@@ -21,10 +21,15 @@ tasks:
     cmds:
       - npm update && npm upgrade
 
-  run-cloudfunctions-framework:
+  run-xplorers-bot:
     desc: Run cloud functions framework locally to test the application
     cmds:
-      - npm run start-local-server
+      - npm run start-xplorersbot-server
+
+  run-openai:
+    desc: Run cloud functions framework locally to test the application
+    cmds:
+      - npm run start-openai-server
 
   test:
     desc: Run unit tests using jest
@@ -53,16 +58,18 @@ tasks:
       - cp -R node_modules out/* package*.json dist
 
   create-slack-token-secret:
-    desc: Create a secret in GCP Secret Manager
+    desc: Create required secrets in GCP Secret Manager
     summary: |
-      Create a secret in GCP Secret Manager to store the slack to store slack token.
+      Create secrets in GCP Secret Manager to store the slack token, azure openai endpoint and key
 
-      Don't forget to set SLACK_OAUTH_TOKEN env var before running this command.
+      Don't forget to set SLACK_OAUTH_TOKEN, AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_KEY env vars
+      before running this command.
+
+      If you only want to test the slack feature, only supplying the SLACK_OAUTH_TOKEN is enough.
     cmds:
       - printf ${SLACK_OAUTH_TOKEN} | gcloud secrets create slack-oauth-token-${TF_WORKSPACE} --data-file=- --replication-policy=automatic
-    preconditions:
-      - sh: "[ '${SLACK_OAUTH_TOKEN}' == '<no value>' ]"
-        msg: Please set environment variable 'SLACK_OAUTH_TOKEN' before running this command
+      - printf ${AZURE_OPENAI_ENDPOINT} | gcloud secrets create azure-openai-endpoint-${TF_WORKSPACE} --data-file=- --replication-policy=automatic
+      - printf ${AZURE_OPENAI_KEY} | gcloud secrets create azure-openai-key-${TF_WORKSPACE} --data-file=- --replication-policy=automatic
 
   terraform-fmt:
     desc: Format terraform files

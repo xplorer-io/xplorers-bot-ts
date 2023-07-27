@@ -7,7 +7,7 @@ import {
     SlackMessageChangedEvent,
 } from "./interfaces";
 import emojis from "./files/emojis.json";
-import { ErrorCode } from "@slack/web-api";
+import { ChatPostMessageArguments, ErrorCode } from "@slack/web-api";
 
 export function getEmojisToReactWith(text: string): Array<string> {
     const lowerCaseText = text.toLowerCase();
@@ -141,15 +141,19 @@ export async function addReactionToSlackPost(
 export async function postMessageToSlack(
     slackWebClient: SlackWebClient,
     text: string,
-    slackChannel: string
+    slackChannel: string,
+    threadTs?: string
 ) {
-    const postMessageResponse = await slackWebClient.chat.postMessage({
+    let chatPostMessageArguments: ChatPostMessageArguments = {
         text: text,
         channel: slackChannel,
-    });
-    console.log(
-        `Successfully sent message ${postMessageResponse.ts} to slack channel ${slackChannel}`
-    );
+    };
+
+    if (threadTs) {
+        chatPostMessageArguments.thread_ts = threadTs;
+    }
+
+    return await slackWebClient.chat.postMessage(chatPostMessageArguments);
 }
 
 async function handleSlackJoinEvent(
