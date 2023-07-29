@@ -34,7 +34,7 @@ tasks:
   test:
     desc: Run unit tests using jest
     cmds:
-      - npm run test
+      - npm run coverage
 
   compile:
     desc: Compile typescript files
