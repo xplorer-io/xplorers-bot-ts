@@ -2,7 +2,7 @@
   "main": "index.js",
   "scripts": {
     "start": "functions-framework --target=xplorersbot",
-    "test": "task clean && jest --verbose --coverage tests",
+    "test": "task clean && jest --verbose --coverage --watch",
     "start-xplorersbot-server": "task clean && tsc && cd out && npx functions-framework --target=xplorersbot --signature-type=http",
     "start-openai-server": "task clean && tsc && cd out && npx functions-framework --target=xplorersbotOpenAI --signature-type=http"
   },

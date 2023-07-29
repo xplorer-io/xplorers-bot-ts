@@ -15,22 +15,20 @@ export function getEmojisToReactWith(text: string): Array<string> {
     return Array.from(new Set(emojisToReactWith));
 }
 
-function findMatchingEmojiKeywords(
+export function findMatchingEmojiKeywords(
     keywords: string[],
     lowerCaseText: string,
     emojis: Record<string, string[]>
-): Array<string> {
-    const matchingEmojiKeywords: Array<string> = [];
-
+) {
+    const emojiKeys = Object.keys(emojis);
     for (const keyword of keywords) {
         //this is too deep too
-        if (lowerCaseText.includes(keyword)) {
-            matchingEmojiKeywords.push(
-                Object.keys(emojis).find((key) =>
-                    emojis[key].includes(keyword)
-                )!
+        const textHasKeyword = lowerCaseText.includes(keyword);
+        if (textHasKeyword) {
+            const matchingEmojis = emojiKeys.filter((key) =>
+                emojis[key].includes(keyword)
             );
+            return matchingEmojis;
         }
     }
-    return matchingEmojiKeywords;
 }
