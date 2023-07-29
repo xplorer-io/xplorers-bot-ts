@@ -37,9 +37,6 @@ export async function askOpenAI(message: string) {
             messages
         );
 
-        // json result
-        console.log(JSON.stringify(chatCompletion, null, 2));
-
         return chatCompletion?.choices?.[0]?.message?.content ?? "";
     } catch (err) {
         console.error("Error occured when interacting with OpenAI:", err);

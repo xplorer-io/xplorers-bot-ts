@@ -43,8 +43,20 @@ export const xplorersbot: HttpFunction = async (req, res) => {
     switch (req.body.type) {
         case "event_callback":
             const slackEvent = req?.body?.event;
+            const isMessageDeletedEvent =
+                slackEvent?.subtype === "message_deleted";
 
-            if (slackEvent.bot_id) {
+            // if message and previous message are same, its a message deletion event
+            const isMessageChangedDeletedEvent =
+                slackEvent?.message?.text ===
+                slackEvent?.previous_message?.text;
+
+            // if bot event or message deleted event then break
+            if (
+                slackEvent.bot_id ||
+                isMessageDeletedEvent ||
+                isMessageChangedDeletedEvent
+            ) {
                 break;
             }
 
