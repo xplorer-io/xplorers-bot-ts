@@ -2,6 +2,7 @@ import { ChatPostMessageArguments, ErrorCode } from "@slack/web-api";
 import { SlackWebClient } from "../helpers/types";
 import { getEmojisToReactWith } from "../emojis/emojiHandler";
 import SLACK_MESSAGE_BLOCKS from "../helpers/files/welcomeMessageBlocks.json";
+import { getRandomValue } from "../utils/getRandomValue";
 
 export async function addReactionToSlackPost(
     emoji: string,
@@ -121,8 +122,7 @@ export async function handleSlackJoinEvent(
     userId: string
 ): Promise<void> {
     const messages = SLACK_MESSAGE_BLOCKS.welcomeMessageBlocks;
-    const welcomeMessage =
-        messages[Math.floor(Math.random() * messages.length)];
+    const welcomeMessage = messages[getRandomValue({ range: messages.length })];
     // substitute user id in random welcome message with real user id
     const welcomeMessageText = welcomeMessage.blocks[0].text.text
         .split("@userId")
