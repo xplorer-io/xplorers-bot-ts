@@ -11,13 +11,13 @@ jobs:
       id-token: write
 
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v3
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-    - name: Install taskfile
-      run: |
-        sudo snap install task --classic
+      - name: Install taskfile
+        run: |
+          sudo snap install task --classic
 
-    - id: run-unit-tests
-      name: Run unit tests
-      run: task install && task test
+      - id: run-unit-tests
+        name: Run unit tests
+        run: task install && task test
