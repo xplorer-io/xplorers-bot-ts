@@ -6,22 +6,33 @@ const emojis = {
     programming: ["javascript", "python"],
 };
 
-describe("Emoji handler", () => {
-    it("should return matching emojis for a given keyword", () => {
-        const keywords = Object.values(emojis).flat();
+const keywords = Object.values(emojis).flat();
 
+describe("Emoji handler", () => {
+    it("should return matching emoji for a given keyword", () => {
         const matchingEmojis = findMatchingEmojiKeywords(
             keywords,
             "reactivity",
             emojis
         );
         expect(matchingEmojis).toEqual(["react"]);
+    });
 
-        const matchingEmojis2 = findMatchingEmojiKeywords(
+    it("should return multiple matching emojis for a given keyword", () => {
+        const matchingEmojis = findMatchingEmojiKeywords(
             keywords,
             "javascript",
             emojis
         );
-        expect(matchingEmojis2).toEqual(["javascript", "programming"]);
+        expect(matchingEmojis).toEqual(["javascript", "programming"]);
+    });
+
+    it("should return empty array for a not matching keyword", () => {
+        const matchingEmojis = findMatchingEmojiKeywords(
+            keywords,
+            "random",
+            emojis
+        );
+        expect(matchingEmojis).toEqual([]);
     });
 });
