@@ -6,13 +6,7 @@ export function getEmojisToReactWith(text: string): Array<string> {
     const keywords = Object.values(emojis).flat();
 
     // search for each keyword in the text
-    const emojisToReactWith = findMatchingEmojiKeywords(
-        keywords,
-        lowerCaseText,
-        emojis
-    );
-
-    return Array.from(new Set(emojisToReactWith));
+    return findMatchingEmojiKeywords(keywords, lowerCaseText, emojis);
 }
 
 export function findMatchingEmojiKeywords(
@@ -31,4 +25,5 @@ export function findMatchingEmojiKeywords(
             return matchingEmojis;
         }
     }
+    return [];
 }
